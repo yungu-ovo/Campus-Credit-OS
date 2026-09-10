@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1F4B3C">
+<title>加分参谋部</title>
+<style>
+:root{
+  --bg:#F6F2E9;
+  --paper:#FFFDF8;
+  --paper2:#FBF7EF;
+  --ink:#1E2B26;
+  --muted:#6F7A73;
+  --green:#1F4B3C;
+  --green2:#2E6B55;
+  --green-soft:#E4EDE7;
+  --crimson:#B23A2C;
+  --crimson-soft:#FAE9E6;
+  --amber:#A9701A;
+  --amber-soft:#FAF0DC;
+  --ok:#2E7D5B;
+  --ok-soft:#E5F0EA;
+  --line:#E6DFD0;
+  --line2:#D6CCBA;
+  --r:14px;
+  --r-s:10px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  background-image:radial-gradient(rgba(31,75,60,.035) 1px, transparent 1px);
+  background-size:22px 22px;
+  color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  -webkit-text-size-adjust:100%;
+}
+button,input,select,textarea{font-family:inherit;font-size:14px;color:inherit}
+h1,h2,h3,h4,p,ul,ol{margin:0}
+ul{padding:0;list-style:none}
+.ic{width:18px;height:18px;flex:none;display:block}
+.ic-sm{width:15px;height:15px}
+
+/* ---------- layout ---------- */
+.app{min-height:100vh}
+main{padding:16px 14px 100px;max-width:1320px}
+.nav{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  background:var(--paper);border-top:1px solid var(--line);
+  display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+.brand{display:none;align-items:center;gap:9px}
+.brand-mark{width:30px;height:30px;border-radius:9px;background:var(--green);color:#F6F2E9;display:flex;align-items:center;justify-content:center;flex:none}
+.brand-mark svg{width:18px;height:18px}
+.brand-txt strong{display:block;font-size:14px;letter-spacing:.5px;line-height:1.2}
+.brand-txt span{display:block;font-size:10.5px;color:var(--muted);letter-spacing:.6px}
+.nav-list{display:flex;width:100%;gap:2px}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:6px 2px;border:0;background:none;border-radius:var(--r-s);color:var(--muted);font-size:11px;cursor:pointer;min-width:0}
+.nav-btn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.nav-btn.active{color:var(--green);background:var(--green-soft);font-weight:600}
+
+@media (min-width:768px){
+  main{padding:18px 22px 40px}
+  .nav{position:sticky;top:0;bottom:auto;border-top:0;border-bottom:1px solid var(--line);
+    padding:8px 22px;align-items:center;gap:18px}
+  .brand{display:flex}
+  .nav-list{width:auto;gap:4px;margin-left:auto}
+  .nav-btn{flex:none;flex-direction:row;gap:7px;padding:8px 12px;font-size:13px}
+}
+@media (min-width:1024px){
+  .nav{position:fixed;top:0;left:0;bottom:0;width:222px;height:100vh;flex-direction:column;align-items:stretch;
+    gap:18px;border-right:1px solid var(--line);border-bottom:0;padding:22px 14px}
+  .brand{padding:0 4px}
+  .nav-list{margin-left:0;flex-direction:column;gap:3px}
+  .nav-btn{justify-content:flex-start;padding:10px 12px;font-size:14px}
+  .nav-btn.active{box-shadow:inset 3px 0 0 var(--green)}
+  .nav-foot{margin-top:auto;font-size:11px;color:var(--muted);padding:0 6px;line-height:1.5;border-top:1px solid var(--line);padding-top:12px}
+  main{margin-left:222px;padding:26px 32px 48px}
+}
+.nav-foot{display:none}
+@media (min-width:1024px){.nav-foot{display:block}}
+
+/* ---------- shared ---------- */
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:15px 16px}
+.card + .card{margin-top:14px}
+.sec-h{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.sec-h h2{font-size:15px;letter-spacing:.3px}
+.sec-h .sub{font-size:11.5px;color:var(--muted);margin-left:auto}
+.hint{font-size:12px;color:var(--muted);line-height:1.7}
+.foot{margin-top:26px;padding-top:14px;border-top:1px dashed var(--line2);font-size:11px;color:var(--muted);text-align:center}
+.empty{padding:16px 12px;border:1px dashed var(--line2);border-radius:var(--r-s);font-size:12.5px;color:var(--muted);background:var(--paper2);text-align:center}
+.muted{color:var(--muted)}
+.mono{font-variant-numeric:tabular-nums}
+
+.pill{display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 8px;border-radius:6px;
+  font-size:11.5px;border:1px solid var(--line2);background:var(--paper2);color:var(--muted);white-space:nowrap}
+.pill-green{background:var(--green-soft);border-color:#CBDCD2;color:var(--green)}
+.pill-crimson{background:var(--crimson-soft);border-color:#EED3CD;color:var(--crimson);font-weight:600}
+.pill-amber{background:var(--amber-soft);border-color:#EEDCC0;color:var(--amber);font-weight:600}
+.pill-ok{background:var(--ok-soft);border-color:#C9E2D6;color:var(--ok)}
+.pill-plain{background:transparent}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:34px;padding:0 13px;
+  border-radius:9px;border:1px solid var(--line2);background:var(--paper);cursor:pointer;font-size:13px;color:var(--ink)}
+.btn:hover{border-color:var(--green2);color:var(--green)}
+.btn-p{background:var(--green);border-color:var(--green);color:#F6F2E9}
+.btn-p:hover{background:var(--green2);color:#fff}
+.btn-d{color:var(--crimson);border-color:#EED3CD}
+.btn-d:hover{background:var(--crimson-soft);color:var(--crimson);border-color:var(--crimson)}
+.btn-sm{height:28px;padding:0 9px;font-size:12px;border-radius:7px}
+.btn-ghost{border-color:transparent;background:transparent;color:var(--muted)}
+.btn-ghost:hover{background:var(--green-soft);color:var(--green)}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap}
+
+.field{display:flex;flex-direction:column;gap:4px;min-width:0}
+.field > label{font-size:11.5px;color:var(--muted);letter-spacing:.3px}
+.inp{height:34px;border:1px solid var(--line2);border-radius:8px;background:var(--paper);padding:0 9px;width:100%;outline:none}
+textarea.inp{height:auto;padding:8px 9px;resize:vertical;line-height:1.6}
+.inp:focus{border-color:var(--green2);box-shadow:0 0 0 2px rgba(31,75,60,.08)}
+.inp:disabled{background:#F1EDE4;color:#A6AEA9}
+select.inp{appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);
+  background-position:calc(100% - 14px) 15px,calc(100% - 9px) 15px;background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:26px}
+.form-grid{display:grid;gap:10px;grid-template-columns:1fr}
+@media (min-width:600px){.form-grid{grid-template-columns:1fr 1fr}}
+@media (min-width:1024px){.form-grid{grid-template-columns:1fr 1fr 1fr}}
+.form-grid .span2{grid-column:1/-1}
+@media (min-width:600px){.form-grid .span2{grid-column:span 2}}
+.form-err{color:var(--crimson);font-size:12px;min-height:16px}
+
+/* ---------- today ---------- */
+.hero{background:var(--green);color:#F2F6F3;border-radius:var(--r);padding:16px 17px;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-40px;top:-40px;width:150px;height:150px;border-radius:50%;background:rgba(255,255,255,.05)}
+.hero h1{font-size:18px;letter-spacing:1px;font-weight:600}
+.hero .date{font-size:12px;opacity:.8;margin-top:2px}
+.hero-stats{display:flex;gap:8px;margin-top:13px;flex-wrap:wrap;position:relative}
+.hstat{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);border-radius:9px;padding:6px 10px;min-width:78px}
+.hstat b{display:block;font-size:17px;line-height:1.25;font-variant-numeric:tabular-nums}
+.hstat span{font-size:10.5px;opacity:.78;letter-spacing:.3px}
+
+.todo{display:flex;gap:11px;padding:12px 0;border-top:1px solid var(--line)}
+.todo:first-of-type{border-top:0}
+.todo-rank{width:24px;height:24px;border-radius:7px;background:var(--green-soft);color:var(--green);
+  font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none;margin-top:2px}
+.todo-main{flex:1;min-width:0}
+.todo-title{font-size:14.5px;font-weight:600;line-height:1.45}
+.todo-why{font-size:12px;color:var(--muted);margin-top:3px}
+.todo-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;align-items:center}
+.todo-act{display:flex;flex-direction:column;gap:6px;flex:none;align-self:center}
+@media (max-width:520px){
+  .todo{flex-wrap:wrap}
+  .todo-act{flex-direction:row;width:100%;margin-top:2px}
+  .todo-act .btn{flex:1}
+}
+.deadline{font-variant-numeric:tabular-nums;font-weight:600}
+.dl-red{color:var(--crimson)}
+.dl-amber{color:var(--amber)}
+.dl-green{color:var(--green)}
+
+.cols{display:grid;gap:14px;grid-template-columns:1fr;margin-top:14px}
+@media (min-width:768px){.cols{grid-template-columns:1fr 1fr}}
+@media (min-width:1024px){.cols{grid-template-columns:1fr 1fr 1fr}}
+.mini-list li{padding:8px 0;border-top:1px dashed var(--line);display:flex;gap:8px;align-items:flex-start}
+.mini-list li:first-child{border-top:0}
+.mini-list .ml-t{font-size:13px;line-height:1.45}
+.mini-list .ml-s{font-size:11.5px;color:var(--muted);margin-top:2px}
+.mini-list .ml-r{margin-left:auto;text-align:right;flex:none;font-size:12px}
+
+.quickadd{border:1px solid var(--green);background:linear-gradient(180deg,#FFFDF8,#F4F7F3);border-radius:var(--r);padding:15px 16px;margin-top:14px}
+.qa-grid{display:grid;gap:14px;grid-template-columns:1fr}
+@media (min-width:768px){.qa-grid{grid-template-columns:1fr 1fr}}
+.qa-title{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;margin-bottom:9px;color:var(--green)}
+.qa-fields{display:grid;gap:8px;grid-template-columns:1fr 1fr}
+.banner{display:flex;gap:10px;align-items:center;background:var(--amber-soft);border:1px solid #EEDCC0;color:var(--amber);
+  border-radius:var(--r-s);padding:10px 12px;font-size:12.5px;margin-bottom:14px}
+.banner .btn{margin-left:auto}
+
+/* ---------- radar / materials ---------- */
+.toolbar{display:grid;gap:8px;grid-template-columns:1fr 1fr;margin-bottom:12px}
+@media (min-width:768px){.toolbar{grid-template-columns:repeat(4,1fr)}}
+.chk{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);height:34px}
+.chk input{width:15px;height:15px;accent-color:var(--green)}
+.cards{display:grid;gap:12px;grid-template-columns:1fr}
+@media (min-width:768px){.cards{grid-template-columns:1fr 1fr}}
+@media (min-width:1400px){.cards{grid-template-columns:1fr 1fr 1fr}}
+.item{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px}
+.item-top{display:flex;gap:8px;align-items:flex-start}
+.item-name{font-size:14.5px;font-weight:600;line-height:1.45;flex:1;min-width:0}
+.item-dl{text-align:right;flex:none}
+.item-dl b{display:block;font-size:16px;line-height:1.2;font-variant-numeric:tabular-nums}
+.item-dl span{font-size:11px;color:var(--muted)}
+.item-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}
+.item-note{font-size:12px;color:var(--muted);margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);white-space:pre-wrap;word-break:break-word}
+.item-act{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.grp-h{display:flex;align-items:center;gap:8px;margin:16px 0 9px;font-size:13px;color:var(--green);font-weight:600}
+.grp-h:first-child{margin-top:0}
+.grp-h .line{flex:1;height:1px;background:var(--line)}
+.grp-h .n{font-size:11.5px;color:var(--muted);font-weight:400}
+
+/* ---------- score ---------- */
+.score-hero{display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.ring-wrap{flex:none;position:relative;width:150px;height:150px;margin:0 auto}
+.ring-txt{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-txt b{font-size:30px;line-height:1;font-variant-numeric:tabular-nums;color:var(--green)}
+.ring-txt span{font-size:11px;color:var(--muted);margin-top:4px}
+.bars{flex:1;min-width:260px;display:flex;flex-direction:column;gap:11px}
+.bar-row .bar-h{display:flex;font-size:12.5px;margin-bottom:4px}
+.bar-row .bar-h .v{margin-left:auto;font-variant-numeric:tabular-nums}
+.bar{height:9px;border-radius:6px;background:#EDE7DA;overflow:hidden;position:relative}
+.bar i{display:block;height:100%;border-radius:6px}
+.b-mor{background:var(--green)}
+.b-aca{background:var(--green2)}
+.b-spo{background:#5E9C7E}
+.b-bon{background:var(--amber)}
+.kv{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+@media (min-width:768px){.kv{grid-template-columns:repeat(4,1fr)}}
+.kv .box{border:1px solid var(--line);border-radius:var(--r-s);padding:10px 11px;background:var(--paper2)}
+.kv .box b{display:block;font-size:16px;font-variant-numeric:tabular-nums}
+.kv .box span{font-size:11.5px;color:var(--muted)}
+.hyp li{display:flex;gap:9px;align-items:center;padding:9px 0;border-top:1px dashed var(--line);font-size:13px}
+.hyp li:first-child{border-top:0}
+.hyp .g{margin-left:auto;font-weight:600;color:var(--green);font-variant-numeric:tabular-nums;flex:none}
+
+/* ---------- docs ---------- */
+.seg{display:inline-flex;background:var(--paper2);border:1px solid var(--line2);border-radius:9px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 12px;border-radius:7px;font-size:12.5px;cursor:pointer;color:var(--muted)}
+.seg button.on{background:var(--green);color:#F6F2E9;font-weight:600}
+.docout{white-space:pre-wrap;word-break:break-word;font-size:13px;line-height:1.85;background:var(--paper2);
+  border:1px solid var(--line);border-radius:var(--r-s);padding:14px;max-height:60vh;overflow:auto}
+.docout .ph{background:var(--amber-soft);color:var(--amber);padding:0 4px;border-radius:4px}
+
+/* ---------- me ---------- */
+.list-row{display:flex;gap:10px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.list-row:first-child{border-top:0}
+.list-row .lr-t{font-size:13.5px;font-weight:600}
+.list-row .lr-s{font-size:11.5px;color:var(--muted);margin-top:2px}
+.list-row .lr-a{margin-left:auto;display:flex;gap:6px;flex:none}
+.steps{counter-reset:s}
+.steps li{position:relative;padding-left:28px;margin-bottom:9px;font-size:13px;line-height:1.7}
+.steps li:before{counter-increment:s;content:counter(s);position:absolute;left:0;top:2px;width:19px;height:19px;border-radius:6px;
+  background:var(--green-soft);color:var(--green);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+/* ---------- modal / toast ---------- */
+.mask{position:fixed;inset:0;background:rgba(30,43,38,.42);z-index:60;display:flex;align-items:flex-end;justify-content:center;padding:0}
+@media (min-width:768px){.mask{align-items:center;padding:20px}}
+.modal{background:var(--paper);width:100%;max-width:640px;max-height:90vh;overflow:auto;
+  border-radius:16px 16px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));border:1px solid var(--line)}
+@media (min-width:768px){.modal{border-radius:var(--r);padding:18px 20px}}
+.modal-h{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+.modal-h h3{font-size:15px}
+.modal-h .x{margin-left:auto;border:0;background:none;cursor:pointer;color:var(--muted);padding:4px;border-radius:7px}
+.modal-h .x:hover{background:var(--green-soft);color:var(--green)}
+.modal-f{display:flex;gap:8px;justify-content:flex-end;margin-top:14px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:80;background:var(--ink);color:#F6F2E9;
+  padding:9px 16px;border-radius:20px;font-size:12.5px;box-shadow:0 6px 18px rgba(30,43,38,.2)}
+@media (min-width:1024px){.toast{bottom:32px}}
+.linklist{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:var(--r-s)}
+.linklist label{display:flex;gap:9px;align-items:flex-start;padding:9px 11px;border-top:1px solid var(--line);cursor:pointer;font-size:13px}
+.linklist label:first-child{border-top:0}
+.linklist input{width:15px;height:15px;accent-color:var(--green);margin-top:3px;flex:none}
+.linklist .ll-s{font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="nav">
+    <div class="brand">
+      <div class="brand-mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M6 19V9"/><path d="M12 19V5"/><path d="M18 19v-6"/></svg></div>
+      <div class="brand-txt"><strong>加分参谋部</strong><span>CAMPUS CREDIT OS</span></div>
+    </div>
+    <div class="nav-list" id="navList"></div>
+    <div class="nav-foot">数据仅保存在本机浏览器<br>断网可用 · 不上传任何内容</div>
+  </nav>
+  <main id="view"></main>
+</div>
+<div id="modalHost"></div>
+<div class="toast" id="toast" hidden></div>
+<input type="file" id="importFile" accept="application/json,.json" style="display:none">
+
+<script>
+(function(){
+'use strict';
+
+/* ============================================================
+   1. 常量与工具
+   ============================================================ */
+var LS_KEY = 'campus_credit_os_v1';
+var TYPES = ['竞赛','奖学金','讲座','志愿','实习科研'];
+var CATS = ['德育','智育','体育','附加'];
+var EFFORTS = ['低','中','高'];
+var STATUSES = ['关注','已报名','进行中','已提交','已结束','放弃'];
+var KINDS = ['证书','活动','志愿','职务','成果'];
+var PROOFS = ['有电子版','缺扫描件','待开证明'];
+var CLOSED = ['已结束','放弃'];
+
+var IC = {
+  today:'<circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.2"/><path d="M12 1.8v2.6M12 19.6v2.6M1.8 12h2.6M19.6 12h2.6"/>',
+  radar:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/><path d="M12 12l6.2-4"/>',
+  materials:'<rect x="3" y="4" width="18" height="5" rx="1.6"/><path d="M5 9v10a1 1 0 001 1h12a1 1 0 001-1V9"/><path d="M10 13h4"/>',
+  score:'<path d="M4 17a8 8 0 1116 0"/><path d="M12 17l4-4.2"/><circle cx="12" cy="17" r="1.3"/>',
+  docs:'<path d="M14 3H7a2 2 0 00-2 2v14a2 2 0 002 2h10a2 2 0 002-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/>',
+  me:'<circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.2-3.3 3.8-4.9 7-4.9s5.8 1.6 7 4.9"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  edit:'<path d="M12 20h9"/><path d="M16.6 3.6a2.1 2.1 0 013 3L7.2 19 3.5 20l1-3.7z"/>',
+  trash:'<path d="M4 7h16M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2M6 7l1 13a1 1 0 001 1h8a1 1 0 001-1l1-13"/>',
+  link:'<path d="M10 13a5 5 0 007 0l2-2a5 5 0 00-7-7l-1 1"/><path d="M14 11a5 5 0 00-7 0l-2 2a5 5 0 007 7l1-1"/>',
+  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15H4a1 1 0 01-1-1V4a1 1 0 011-1h10a1 1 0 011 1v1"/>',
+  check:'<path d="M4 12.5l5 5L20 6.5"/>',
+  alert:'<path d="M12 3.6L21 20H3z"/><path d="M12 9.6v4.2M12 16.8v.2"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5.2l3 1.9"/>',
+  down:'<path d="M12 4v11M7 11l5 5 5-5M5 20h14"/>',
+  up:'<path d="M12 20V9M7 13l5-5 5 5M5 4h14"/>',
+  x:'<path d="M6 6l12 12M18 6L6 18"/>',
+  flag:'<path d="M5 21V4M5 4h9l-1 3 1 3H5"/><path d="M5 10h7l-1 3 1 3H5"/>',
+  hour:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/><path d="M7.5 12H4M20 12h-3.5"/>'
+};
+function ic(n, cls){
+  return '<svg class="ic ' + (cls || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">' + (IC[n] || '') + '</svg>';
+}
+function esc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+function uid(){ return 'x' + Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+function num(v){ var n = parseFloat(v); return isFinite(n) ? n : 0; }
+function f1(n){ return (Math.round(n * 100) / 100).toString(); }
+function pad(n){ return n < 10 ? '0' + n : '' + n; }
+function ymd(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+function today0(){ var d = new Date(); d.setHours(0,0,0,0); return d; }
+function shiftToday(n){ var d = today0(); d.setDate(d.getDate() + n); return ymd(d); }
+function parseDate(s){
+  if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
+  var p = s.split('-').map(Number);
+  var d = new Date(p[0], p[1] - 1, p[2]);
+  if (d.getFullYear() !== p[0] || d.getMonth() !== p[1] - 1 || d.getDate() !== p[2]) return null;
+  return d;
+}
+function dayDiff(s){
+  var d = parseDate(s);
+  if (!d) return null;
+  return Math.round((d.getTime() - today0().getTime()) / 86400000);
+}
+function validDate(s){ return parseDate(s) !== null; }
+function weekdayCN(s){
+  var d = parseDate(s); if (!d) return '';
+  return '日一二三四五六'.charAt(d.getDay());
+}
+var toastTimer = null;
+function toast(msg){
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.hidden = true; }, 1900);
+}
+
+/* ============================================================
+   2. 状态与持久化
+   ============================================================ */
+function defaultSettings(){
+  return { moralWeight:20, academicWeight:70, sportWeight:10, bonusCap:8, volunteerTargetHours:20, gpa:3.6, academicScore:0 };
+}
+function mergeSettings(s){
+  var d = defaultSettings(); var out = {};
+  for (var k in d){ if (Object.prototype.hasOwnProperty.call(d, k)) out[k] = (s && s[k] !== undefined && s[k] !== null) ? s[k] : d[k]; }
+  out.moralWeight = num(out.moralWeight); out.academicWeight = num(out.academicWeight);
+  out.sportWeight = num(out.sportWeight); out.bonusCap = num(out.bonusCap);
+  out.volunteerTargetHours = num(out.volunteerTargetHours); out.gpa = num(out.gpa);
+  return out;
+}
+function demoData(){
+  var D = function(n){ return shiftToday(n); };
+  return {
+    opportunities: [
+      { id:uid(), name:'国家励志奖学金申报', type:'奖学金', deadline:D(5), creditCategory:'附加', estimatedPoints:4, effort:'高', status:'关注', note:'需附成绩单、家庭情况说明与班主任签字；材料齐了再交。', linkedMaterialIds:[], demo:true },
+      { id:uid(), name:'校级数模竞赛报名', type:'竞赛', deadline:D(-1), creditCategory:'附加', estimatedPoints:3, effort:'高', status:'关注', note:'三人组队，报名表需指导老师签字。昨天截止，需确认是否还有补报通道。', linkedMaterialIds:[], demo:true },
+      { id:uid(), name:'学院生涯规划讲座', type:'讲座', deadline:D(1), creditCategory:'德育', estimatedPoints:0.5, effort:'低', status:'关注', note:'现场签到计入德育，带上学生证。', linkedMaterialIds:[], demo:true },
+      { id:uid(), name:'周末社区志愿服务', type:'志愿', deadline:D(3), creditCategory:'德育', estimatedPoints:1, effort:'中', status:'已报名', note:'服务结束后记得开时长证明。', linkedMaterialIds:[], demo:true },
+      { id:uid(), name:'院刊编辑部留任材料', type:'实习科研', deadline:D(12), creditCategory:'德育', estimatedPoints:1, effort:'中', status:'进行中', note:'需交一页任职总结与版面截图。', linkedMaterialIds:[], demo:true },
+      { id:uid(), name:'英语演讲比赛', type:'竞赛', deadline:D(20), creditCategory:'附加', estimatedPoints:2, effort:'高', status:'放弃', note:'与实习时间冲突，本学期放弃。', linkedMaterialIds:[], demo:true }
+    ],
+    materials: [
+      { id:uid(), title:'英语竞赛校二等奖证书', kind:'证书', date:D(-40), hours:'', proofStatus:'有电子版', creditCategory:'附加', points:2, linkedOpportunityId:null, note:'', demo:true },
+      { id:uid(), title:'班长职务证明', kind:'职务', date:D(-30), hours:'', proofStatus:'待开证明', creditCategory:'德育', points:1.5, linkedOpportunityId:null, note:'需学院团委盖章。', demo:true },
+      { id:uid(), title:'迎新志愿服务', kind:'志愿', date:D(-25), hours:8, proofStatus:'有电子版', creditCategory:'德育', points:0.5, linkedOpportunityId:null, note:'', demo:true },
+      { id:uid(), title:'图书馆整理志愿', kind:'志愿', date:D(-12), hours:4, proofStatus:'缺扫描件', creditCategory:'德育', points:0.5, linkedOpportunityId:null, note:'纸质证明在抽屉里，需扫描。', demo:true },
+      { id:uid(), title:'运动会入场式', kind:'活动', date:D(-20), hours:'', proofStatus:'有电子版', creditCategory:'体育', points:0.5, linkedOpportunityId:null, note:'', demo:true },
+      { id:uid(), title:'学期学业成绩单', kind:'成果', date:D(-15), hours:'', proofStatus:'有电子版', creditCategory:'智育', points:0, linkedOpportunityId:null, note:'智育以 GPA 折算，此件仅作证明材料。', demo:true },
+      { id:uid(), title:'高数竞赛参与证明', kind:'证书', date:D(-35), hours:'', proofStatus:'缺扫描件', creditCategory:'附加', points:0, linkedOpportunityId:null, note:'未获奖，只作参与证明。', demo:true },
+      { id:uid(), title:'社团年度活动策划', kind:'活动', date:D(-8), hours:'', proofStatus:'待开证明', creditCategory:'德育', points:0.5, linkedOpportunityId:null, note:'需社联负责人签字。', demo:true }
+    ]
+  };
+}
+function blankState(){
+  return { meta:{ demoLoaded:false, bannerDismissed:false }, opportunities:[], materials:[], settings:defaultSettings() };
+}
+var state = null;
+function load(){
+  try {
+    var raw = localStorage.getItem(LS_KEY);
+    if (raw){
+      var d = JSON.parse(raw);
+      if (d && Array.isArray(d.opportunities) && Array.isArray(d.materials)){
+        d.settings = mergeSettings(d.settings);
+        d.meta = d.meta || { demoLoaded:false, bannerDismissed:false };
+        d.opportunities.forEach(function(o){ if (!Array.isArray(o.linkedMaterialIds)) o.linkedMaterialIds = []; });
+        return d;
+      }
+    }
+  } catch (e) {}
+  return null;
+}
+function save(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) { toast('本地存储写入失败，请检查浏览器设置'); }
+}
+var loaded = load();
+if (loaded){ state = loaded; }
+else {
+  state = blankState();
+  var demo = demoData();
+  state.opportunities = demo.opportunities;
+  state.materials = demo.materials;
+  state.meta.demoLoaded = true;
+  save();
+}
+
+/* ============================================================
+   3. 计算引擎
+   ============================================================ */
+function isOpen(o){ return CLOSED.indexOf(o.status) === -1; }
+function openOpps(){ return state.opportunities.filter(isOpen); }
+function volunteerHours(){
+  return state.materials.reduce(function(a, m){
+    return a + (m.kind === '志愿' ? num(m.hours) : 0);
+  }, 0);
+}
+function effortVal(e){ return e === '低' ? 1 : (e === '中' ? 2 : 3); }
+function ratio(o){ return num(o.estimatedPoints) / effortVal(o.effort); }
+function dnum(o){ var d = dayDiff(o.deadline); return d === null ? 1e9 : d; }
+function oppGroup(o){
+  if (!isOpen(o)) return 3;
+  var d = dayDiff(o.deadline);
+  if (d !== null && d < 0) return 0;
+  if (d !== null && d <= 7) return 1;
+  return 2;
+}
+function sortOpps(list){
+  return list.slice().sort(function(a, b){
+    var ga = oppGroup(a), gb = oppGroup(b);
+    if (ga !== gb) return ga - gb;
+    var r = ratio(b) - ratio(a);
+    if (Math.abs(r) > 1e-9) return r;
+    return dnum(a) - dnum(b);
+  });
+}
+function dlClass(d){
+  if (d === null) return 'dl-green';
+  if (d < 0 || d <= 3) return 'dl-red';
+  if (d <= 7) return 'dl-amber';
+  return 'dl-green';
+}
+function dlText(d){
+  if (d === null) return '日期待补';
+  if (d < 0) return '已逾期 ' + Math.abs(d) + ' 天';
+  if (d === 0) return '今天截止';
+  if (d === 1) return '明天截止';
+  return d + ' 天后截止';
+}
+
+/* A. 今日三件事 */
+function buildTop3(){
+  var items = [];
+  openOpps().forEach(function(o){
+    var d = dayDiff(o.deadline);
+    if (d === null) return;
+    var pri = null, why = '';
+    if (d < 0){ pri = 1; why = '已过截止日，状态仍是「' + o.status + '」，需要收尾或确认补报通道'; }
+    else if (d <= 1){ pri = 2; why = d === 0 ? '今天截止，24 小时内必须处理' : '24 小时内截止，报名/到场只差一步'; }
+    else if (d <= 7 && (o.effort === '中' || o.effort === '高')){ pri = 3; why = '7 天内截止，投入为「' + o.effort + '」，需要提前准备材料'; }
+    if (pri) items.push({ pri:pri, kind:'opp', id:o.id, name:o.name, why:why, deadline:o.deadline, diff:d, opp:o });
+  });
+  state.materials.forEach(function(m){
+    if (m.proofStatus === '有电子版' || !m.linkedOpportunityId) return;
+    var o = state.opportunities.filter(function(x){ return x.id === m.linkedOpportunityId; })[0];
+    if (!o) return;
+    var d = dayDiff(o.deadline);
+    if (d === null || d > 14) return;
+    items.push({ pri:4, kind:'mat', id:m.id, name:m.title,
+      why:'材料状态为「' + m.proofStatus + '」，关联的机会「' + o.name + '」' + (d < 0 ? '已过期' : d + ' 天内截止'),
+      deadline:o.deadline, diff:d, mat:m });
+  });
+  var vh = volunteerHours(), target = state.settings.volunteerTargetHours;
+  if (vh < target){
+    var weekVol = openOpps().filter(function(o){ return o.type === '志愿' && dnum(o) <= 7 && dnum(o) > -1e8; });
+    if (weekVol.length){
+      var nearest = weekVol.slice().sort(function(a, b){ return dnum(a) - dnum(b); })[0];
+      items.push({ pri:5, kind:'vol', id:nearest.id, name:'补齐志愿时长：还差 ' + f1(target - vh) + ' 小时',
+        why:'已录入 ' + f1(vh) + ' 小时 / 目标 ' + f1(target) + ' 小时，本周有志愿类机会可以补',
+        deadline:nearest.deadline, diff:dnum(nearest), opp:nearest });
+    }
+  }
+  var picked = {};
+  items.forEach(function(i){ if (i.kind === 'opp') picked[i.id] = true; });
+  openOpps().forEach(function(o){
+    var d = dayDiff(o.deadline);
+    if (d === null || picked[o.id]) return;
+    items.push({ pri:6, kind:'opp', id:o.id, name:o.name,
+      why:'按截止日从近到远排队：' + (d < 0 ? '已逾期' : d + ' 天后截止'),
+      deadline:o.deadline, diff:d, opp:o });
+  });
+  items.sort(function(a, b){
+    if (a.pri !== b.pri) return a.pri - b.pri;
+    return a.diff - b.diff;
+  });
+  return items.slice(0, 3);
+}
+
+/* B. 缺口雷达 */
+function buildGaps(){
+  var g = [];
+  var overdue = state.opportunities.filter(function(o){ return isOpen(o) && dnum(o) < 0; });
+  g.push({ id:'overdue', level: overdue.length ? 'red' : 'green',
+    title:'过期未处理机会', value: overdue.length ? overdue.length + ' 条已过截止日仍未收尾' : '没有过期未处理的机会',
+    detail: overdue.map(function(o){ return o.name; }).join('、'), act: overdue.length ? 'radar' : null, actTxt:'去处理' });
+
+  var soon = openOpps().filter(function(o){
+    var d = dayDiff(o.deadline);
+    return d !== null && d >= 0 && d <= 7 && ['关注','已报名','进行中'].indexOf(o.status) >= 0;
+  });
+  var urgent = soon.filter(function(o){ return dayDiff(o.deadline) <= 3; });
+  g.push({ id:'soon', level: soon.length ? (urgent.length ? 'red' : 'amber') : 'green',
+    title:'7 天内截止且未提交', value: soon.length ? soon.length + ' 条待报名/待提交' + (urgent.length ? '（其中 ' + urgent.length + ' 条在 3 天内）' : '') : '7 天内没有要交的东西',
+    detail: soon.map(function(o){ return o.name; }).join('、'), act: soon.length ? 'radar' : null, actTxt:'去雷达' });
+
+  var vh = volunteerHours(), target = state.settings.volunteerTargetHours, gap = Math.max(0, target - vh);
+  g.push({ id:'vol', level: gap > 0 ? 'amber' : 'green',
+    title:'志愿时长缺口', value: gap > 0 ? '还差 ' + f1(gap) + ' 小时（已录入 ' + f1(vh) + ' / 目标 ' + f1(target) + '）' : '志愿时长已达标（' + f1(vh) + ' 小时）',
+    detail:'', act: gap > 0 ? 'materials' : null, actTxt:'录时长' });
+
+  var bad = state.materials.filter(function(m){ return m.proofStatus !== '有电子版'; });
+  var noScan = bad.filter(function(m){ return m.proofStatus === '缺扫描件'; }).length;
+  var needProve = bad.filter(function(m){ return m.proofStatus === '待开证明'; }).length;
+  g.push({ id:'proof', level: bad.length ? (bad.length >= 4 ? 'red' : 'amber') : 'green',
+    title:'缺材料证明', value: bad.length ? bad.length + ' 份材料不齐（缺扫描件 ' + noScan + ' / 待开证明 ' + needProve + '）' : '所有材料都有电子版',
+    detail: bad.map(function(m){ return m.title; }).join('、'), act: bad.length ? 'materials' : null, actTxt:'去补齐' });
+
+  var bonusCount = state.materials.filter(function(m){ return m.kind === '成果'; }).length +
+    state.opportunities.filter(function(o){ return o.type === '竞赛' && (o.status === '已提交' || o.status === '已结束'); }).length;
+  g.push({ id:'bonus', level: bonusCount ? 'green' : 'amber',
+    title:'附加分成果', value: bonusCount ? '已录入 ' + bonusCount + ' 条成果/已完赛竞赛' : '成果类材料和已完赛竞赛都是 0，附加分无从算起',
+    detail:'', act: bonusCount ? null : 'radar', actTxt:'找竞赛' });
+
+  return g;
+}
+
+/* D. 综测算分 */
+function scoreBreakdown(){
+  var s = state.settings;
+  var sumCat = function(cat){
+    return state.materials.reduce(function(a, m){ return a + (m.creditCategory === cat ? num(m.points) : 0); }, 0);
+  };
+  var moralRaw = sumCat('德育'), sportRaw = sumCat('体育'), bonusRaw = sumCat('附加');
+  var moral = Math.min(moralRaw, s.moralWeight);
+  var academic = s.gpa / 5 * s.academicWeight;
+  var sport = Math.min(sportRaw, s.sportWeight);
+  var bonus = Math.min(bonusRaw, s.bonusCap);
+  return {
+    moral:moral, moralRaw:moralRaw, academic:academic, sport:sport, sportRaw:sportRaw,
+    bonus:bonus, bonusRaw:bonusRaw,
+    total: moral + academic + sport + bonus,
+    maxTotal: num(s.moralWeight) + num(s.academicWeight) + num(s.sportWeight) + num(s.bonusCap)
+  };
+}
+function gainOf(o){
+  var b = scoreBreakdown(), s = state.settings, p = num(o.estimatedPoints);
+  if (o.creditCategory === '智育') return 0;
+  if (o.creditCategory === '德育') return Math.min(b.moralRaw + p, num(s.moralWeight)) - b.moral;
+  if (o.creditCategory === '体育') return Math.min(b.sportRaw + p, num(s.sportWeight)) - b.sport;
+  if (o.creditCategory === '附加') return Math.min(b.bonusRaw + p, num(s.bonusCap)) - b.bonus;
+  return 0;
+}
+
+/* ============================================================
+   4. 视图：今日作战
+   ============================================================ */
+var VIEWS = [
+  { id:'today', name:'今日作战', icon:'today' },
+  { id:'radar', name:'机会雷达', icon:'radar' },
+  { id:'materials', name:'材料仓', icon:'materials' },
+  { id:'score', name:'综测算分', icon:'score' },
+  { id:'docs', name:'文书工坊', icon:'docs' },
+  { id:'me', name:'我的', icon:'me' }
+];
+var cur = 'today';
+var filters = { type:'', cat:'', status:'', only14:false };
+var docType = 'scholarship';
+
+function renderNav(){
+  document.getElementById('navList').innerHTML = VIEWS.map(function(v){
+    return '<button class="nav-btn' + (v.id === cur ? ' active' : '') + '" data-act="goto" data-view="' + v.id + '">' +
+      ic(v.icon) + '<span>' + v.name + '</span></button>';
+  }).join('');
+}
+
+function backupBanner(){
+  var n = state.opportunities.length + state.materials.length;
+  if (n < 20 || state.meta.bannerDismissed) return '';
+  return '<div class="banner">' + ic('down', 'ic-sm') +
+    '<span>已累计 ' + n + ' 条机会与材料，建议导出一份 JSON 备份，换机或清缓存都不怕。</span>' +
+    '<button class="btn btn-sm" data-act="export">立即导出</button>' +
+    '<button class="btn btn-sm btn-ghost" data-act="dismiss-banner">稍后</button></div>';
+}
+
+function todoActions(it){
+  if (it.kind === 'mat') return '<button class="btn btn-sm btn-p" data-act="goto" data-view="materials">去补材料</button>';
+  if (it.kind === 'vol') return '<button class="btn btn-sm btn-p" data-act="goto" data-view="radar">看志愿机会</button>';
+  var o = it.opp;
+  var html = '';
+  if (o.status === '关注') html += '<button class="btn btn-sm btn-p" data-act="signup" data-id="' + o.id + '">去报名</button>';
+  else if (o.status === '已报名' || o.status === '进行中') html += '<button class="btn btn-sm btn-p" data-act="submit" data-id="' + o.id + '">标记已提交</button>';
+  else if (o.status === '已提交') html += '<button class="btn btn-sm btn-p" data-act="finish" data-id="' + o.id + '">标记已结束</button>';
+  html += '<button class="btn btn-sm" data-act="linkmat" data-id="' + o.id + '">补材料</button>';
+  return html;
+}
+
+function viewToday(){
+  var active = openOpps();
+  var gapCount = state.materials.filter(function(m){ return m.proofStatus !== '有电子版'; }).length;
+  var soonCount = active.filter(function(o){ var d = dayDiff(o.deadline); return d !== null && d >= 0 && d <= 7; }).length;
+  var now = new Date();
+  var dateTxt = ymd(now) + ' 周' + '日一二三四五六'.charAt(now.getDay());
+
+  var top = buildTop3();
+  var topHtml = top.length ? top.map(function(it, i){
+    var d = dayDiff(it.deadline);
+    var meta = '<span class="pill ' + (d !== null && d <= 3 ? 'pill-crimson' : 'pill-plain') + '">截止 ' + esc(it.deadline) + '</span>';
+    if (it.opp){
+      meta += '<span class="pill">' + esc(it.opp.type) + '</span>';
+      meta += '<span class="pill">' + esc(it.opp.creditCategory) + ' ' + f1(num(it.opp.estimatedPoints)) + ' 分</span>';
+      meta += '<span class="pill">投入 ' + esc(it.opp.effort) + '</span>';
+    } else if (it.mat){
+      meta += '<span class="pill pill-amber">' + esc(it.mat.proofStatus) + '</span>';
+      meta += '<span class="pill">' + esc(it.mat.kind) + '</span>';
+    }
+    return '<div class="todo"><div class="todo-rank">' + (i + 1) + '</div>' +
+      '<div class="todo-main"><div class="todo-title">' + esc(it.name) + '</div>' +
+      '<div class="todo-why">为什么在这里：' + esc(it.why) + '</div>' +
+      '<div class="todo-meta">' + meta + '<span class="deadline ' + dlClass(d) + '">' + dlText(d) + '</span></div></div>' +
+      '<div class="todo-act">' + todoActions(it) + '</div></div>';
+  }).join('') : '<div class="empty">今天没有必须处理的事。去机会雷达收一条讲座，或者先把材料仓里的扫描件补齐。</div>';
+
+  var near = active.filter(function(o){ var d = dayDiff(o.deadline); return d !== null && d >= 0 && d <= 7; })
+    .sort(function(a, b){ return dnum(a) - dnum(b); }).slice(0, 6);
+  var nearHtml = near.length ? '<ul class="mini-list">' + near.map(function(o){
+    var d = dayDiff(o.deadline);
+    return '<li><div><div class="ml-t">' + esc(o.name) + '</div>' +
+      '<div class="ml-s">' + esc(o.type) + ' · ' + esc(o.status) + ' · ' + esc(o.creditCategory) + ' ' + f1(num(o.estimatedPoints)) + ' 分</div></div>' +
+      '<div class="ml-r"><span class="deadline ' + dlClass(d) + '">' + dlText(d) + '</span></div></li>';
+  }).join('') + '</ul>' : '<div class="empty">7 天内没有临期机会，可以安心补材料。</div>';
+
+  var bad = state.materials.filter(function(m){ return m.proofStatus !== '有电子版'; }).slice(0, 6);
+  var badHtml = bad.length ? '<ul class="mini-list">' + bad.map(function(m){
+    return '<li><div><div class="ml-t">' + esc(m.title) + '</div>' +
+      '<div class="ml-s">' + esc(m.kind) + ' · ' + esc(m.creditCategory) + ' ' + f1(num(m.points)) + ' 分 · ' + esc(m.date || '无日期') + '</div></div>' +
+      '<div class="ml-r"><span class="pill ' + (m.proofStatus === '待开证明' ? 'pill-amber' : 'pill-crimson') + '">' + esc(m.proofStatus) + '</span></div></li>';
+  }).join('') + '</ul>' : '<div class="empty">材料都齐了。这一栏暂时没有缺口。</div>';
+
+  var vh = volunteerHours(), target = state.settings.volunteerTargetHours;
+  var low = active.filter(function(o){ var d = dayDiff(o.deadline); return o.effort === '低' && d !== null && d >= 0 && d <= 7; })
+    .sort(function(a, b){ return dnum(a) - dnum(b); }).slice(0, 6);
+  var lowHtml = low.length ? '<ul class="mini-list">' + low.map(function(o){
+    var d = dayDiff(o.deadline);
+    return '<li><div><div class="ml-t">' + esc(o.name) + '</div>' +
+      '<div class="ml-s">' + esc(o.type) + ' · ' + esc(o.creditCategory) + ' ' + f1(num(o.estimatedPoints)) + ' 分 · 投入低</div></div>' +
+      '<div class="ml-r"><span class="deadline ' + dlClass(d) + '">' + dlText(d) + '</span></div></li>';
+  }).join('') + '</ul>' : '<div class="empty">本周没有低投入的捡分机会，先把已有的中高投入推完。</div>';
+
+  return backupBanner() +
+    '<div class="hero"><h1>加分参谋部</h1><div class="date">' + dateTxt + ' · Campus Credit OS</div>' +
+      '<div class="hero-stats">' +
+        '<div class="hstat"><b>' + state.opportunities.length + '</b><span>在库机会</span></div>' +
+        '<div class="hstat"><b>' + gapCount + '</b><span>材料缺口</span></div>' +
+        '<div class="hstat"><b>' + soonCount + '</b><span>7 天内截止</span></div>' +
+        '<div class="hstat"><b>' + f1(vh) + '</b><span>志愿小时 / ' + f1(target) + '</span></div>' +
+      '</div></div>' +
+    '<div class="card" style="margin-top:14px">' +
+      '<div class="sec-h">' + ic('flag') + '<h2>今天最重要的 3 件事</h2><span class="sub">按逾期 / 24h / 7 天 / 材料 / 志愿排序</span></div>' +
+      topHtml +
+    '</div>' +
+    '<div class="cols">' +
+      '<div class="card"><div class="sec-h">' + ic('clock') + '<h2>临期机会</h2></div>' + nearHtml + '</div>' +
+      '<div class="card"><div class="sec-h">' + ic('alert') + '<h2>材料缺口</h2></div>' + badHtml + '</div>' +
+      '<div class="card"><div class="sec-h">' + ic('check') + '<h2>本周可补的低投入机会</h2></div>' + lowHtml + '</div>' +
+    '</div>' +
+    '<div class="quickadd"><div class="sec-h">' + ic('plus') + '<h2 style="font-size:14px">快速录入</h2><span class="sub">字段尽量少，先记下来，之后可以补全</span></div>' +
+      '<div class="qa-grid">' +
+        '<div><div class="qa-title">' + ic('radar', 'ic-sm') + '记一条机会</div>' +
+          '<div class="qa-fields">' +
+            '<div class="field"><label>名称</label><input class="inp" id="qoName" placeholder="例：院级辩论赛报名"></div>' +
+            '<div class="field"><label>类型</label><select class="inp" id="qoType">' + opts(TYPES, '') + '</select></div>' +
+            '<div class="field"><label>截止日</label><input class="inp" type="date" id="qoDl" value="' + shiftToday(3) + '"></div>' +
+            '<div class="field"><label>预估加分</label><input class="inp" type="number" step="0.5" id="qoPts" value="1"></div>' +
+          '</div>' +
+          '<div class="btn-row" style="margin-top:9px"><button class="btn btn-p btn-sm" data-act="quick-opp">加入机会雷达</button></div>' +
+        '</div>' +
+        '<div><div class="qa-title">' + ic('materials', 'ic-sm') + '存一份材料</div>' +
+          '<div class="qa-fields">' +
+            '<div class="field"><label>名称</label><input class="inp" id="qmTitle" placeholder="例：三好学生证书"></div>' +
+            '<div class="field"><label>类型</label><select class="inp" id="qmKind">' + opts(KINDS, '') + '</select></div>' +
+            '<div class="field"><label>日期</label><input class="inp" type="date" id="qmDate" value="' + ymd(new Date()) + '"></div>' +
+            '<div class="field"><label>证明状态</label><select class="inp" id="qmProof">' + opts(PROOFS, '') + '</select></div>' +
+          '</div>' +
+          '<div class="btn-row" style="margin-top:9px"><button class="btn btn-p btn-sm" data-act="quick-mat">存入材料仓</button></div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="card" style="margin-top:14px"><div class="sec-h">' + ic('alert') + '<h2>缺口雷达</h2><span class="sub">红=立刻处理，琥珀=待补，绿=已达标</span></div>' +
+      gapListHtml(buildGaps()) + '</div>' +
+    footerHtml();
+}
+function opts(arr, cur){
+  return arr.map(function(v){ return '<option value="' + esc(v) + '"' + (v === cur ? ' selected' : '') + '>' + esc(v) + '</option>'; }).join('');
+}
+function gapListHtml(gaps){
+  return '<ul class="mini-list">' + gaps.map(function(g){
+    var cls = g.level === 'red' ? 'pill-crimson' : (g.level === 'amber' ? 'pill-amber' : 'pill-ok');
+    var label = g.level === 'red' ? '紧急' : (g.level === 'amber' ? '待补' : '达标');
+    return '<li><div style="flex:1"><div class="ml-t">' + esc(g.title) + '</div>' +
+      '<div class="ml-s">' + esc(g.value) + (g.detail ? ' · ' + esc(g.detail) : '') + '</div></div>' +
+      '<div class="ml-r"><span class="pill ' + cls + '">' + label + '</span>' +
+      (g.act ? '<div style="margin-top:5px"><button class="btn btn-sm btn-ghost" data-act="goto" data-view="' + g.act + '">' + g.actTxt + '</button></div>' : '') +
+      '</div></li>';
+  }).join('') + '</ul>';
+}
+function footerHtml(){
+  return '<div class="foot">由腾讯 WorkBuddy 工作台搭建师生成，可本地使用。</div>';
+}
+
+/* ============================================================
+   5. 视图：机会雷达
+   ============================================================ */
+function oppCard(o){
+  var d = dayDiff(o.deadline);
+  var linked = (o.linkedMaterialIds || []).length;
+  var statusCls = o.status === '已提交' || o.status === '已结束' ? 'pill-ok'
+    : (o.status === '放弃' ? 'pill-plain' : (o.status === '关注' ? 'pill-amber' : 'pill-green'));
+  return '<div class="item">' +
+    '<div class="item-top"><div class="item-name">' + esc(o.name) +
+      (d !== null && d < 0 && isOpen(o) ? ' <span class="pill pill-crimson">逾期</span>' : '') + '</div>' +
+      '<div class="item-dl"><b class="deadline ' + dlClass(d) + '">' + (d === null ? '--' : (d < 0 ? Math.abs(d) : d)) + '</b>' +
+      '<span>' + (d === null ? '待补日期' : (d < 0 ? '天前已过' : '天后截止')) + '</span></div></div>' +
+    '<div class="item-meta">' +
+      '<span class="pill pill-green">' + esc(o.type) + '</span>' +
+      '<span class="pill">' + esc(o.creditCategory) + '</span>' +
+      '<span class="pill">' + f1(num(o.estimatedPoints)) + ' 分</span>' +
+      '<span class="pill">投入 ' + esc(o.effort) + '</span>' +
+      '<span class="pill ' + statusCls + '">' + esc(o.status) + '</span>' +
+      (linked ? '<span class="pill pill-ok">已关联 ' + linked + ' 份材料</span>' : '') +
+      '<span class="pill pill-plain">' + esc(o.deadline) + ' 周' + weekdayCN(o.deadline) + '</span>' +
+    '</div>' +
+    (o.note ? '<div class="item-note">' + esc(o.note) + '</div>' : '') +
+    '<div class="item-act">' +
+      '<select class="inp" style="height:28px;width:110px;font-size:12px" data-act="opp-status" data-id="' + o.id + '">' + opts(STATUSES, o.status) + '</select>' +
+      '<button class="btn btn-sm" data-act="edit-opp" data-id="' + o.id + '">' + ic('edit', 'ic-sm') + '编辑</button>' +
+      '<button class="btn btn-sm" data-act="linkmat" data-id="' + o.id + '">' + ic('link', 'ic-sm') + '关联材料</button>' +
+      '<button class="btn btn-sm btn-d" data-act="del-opp" data-id="' + o.id + '">' + ic('trash', 'ic-sm') + '删除</button>' +
+    '</div></div>';
+}
+function viewRadar(){
+  var list = sortOpps(state.opportunities);
+  if (filters.type) list = list.filter(function(o){ return o.type === filters.type; });
+  if (filters.cat) list = list.filter(function(o){ return o.creditCategory === filters.cat; });
+  if (filters.status) list = list.filter(function(o){ return o.status === filters.status; });
+  if (filters.only14) list = list.filter(function(o){ var d = dayDiff(o.deadline); return d !== null && d <= 14; });
+
+  return backupBanner() +
+    '<div class="card"><div class="sec-h">' + ic('plus') + '<h2>新增机会</h2><span class="sub">只收录真实存在的信息，别把传言当加分项</span></div>' +
+      '<div class="form-grid">' +
+        '<div class="field"><label>名称（必填）</label><input class="inp" id="noName" placeholder="例：全国大学生数学建模竞赛"></div>' +
+        '<div class="field"><label>类型</label><select class="inp" id="noType">' + opts(TYPES, '') + '</select></div>' +
+        '<div class="field"><label>截止日（YYYY-MM-DD）</label><input class="inp" type="date" id="noDl" value="' + shiftToday(7) + '"></div>' +
+        '<div class="field"><label>加分类别</label><select class="inp" id="noCat">' + opts(CATS, '') + '</select></div>' +
+        '<div class="field"><label>预估加分（数字）</label><input class="inp" type="number" step="0.5" id="noPts" value="1"></div>' +
+        '<div class="field"><label>投入</label><select class="inp" id="noEff">' + opts(EFFORTS, '') + '</select></div>' +
+        '<div class="field"><label>状态</label><select class="inp" id="noSt">' + opts(STATUSES, '') + '</select></div>' +
+        '<div class="field span2"><label>备注</label><input class="inp" id="noNote" placeholder="组队要求、材料清单、信息来源"></div>' +
+      '</div>' +
+      '<div class="btn-row" style="margin-top:10px"><button class="btn btn-p" data-act="add-opp">' + ic('plus', 'ic-sm') + '加入雷达</button></div>' +
+      '<div class="form-err" id="noErr"></div>' +
+    '</div>' +
+    '<div class="card"><div class="sec-h">' + ic('radar') + '<h2>机会雷达</h2><span class="sub">共 ' + list.length + ' 条</span></div>' +
+      '<div class="toolbar">' +
+        '<select class="inp" data-act="flt" data-key="type"><option value="">全部类型</option>' + opts(TYPES, filters.type) + '</select>' +
+        '<select class="inp" data-act="flt" data-key="cat"><option value="">全部加分分类</option>' + opts(CATS, filters.cat) + '</select>' +
+        '<select class="inp" data-act="flt" data-key="status"><option value="">全部状态</option>' + opts(STATUSES, filters.status) + '</select>' +
+        '<label class="chk"><input type="checkbox" data-act="flt14"' + (filters.only14 ? ' checked' : '') + '>只看 14 天内截止</label>' +
+      '</div>' +
+      (list.length ? '<div class="cards">' + list.map(oppCard).join('') + '</div>'
+        : '<div class="empty">这个筛选下没有机会。放宽条件，或者先去「今日作战」快速记一条。</div>') +
+    '</div>' + footerHtml();
+}
+
+/* ============================================================
+   6. 视图：材料仓
+   ============================================================ */
+function matRow(m){
+  var pcls = m.proofStatus === '有电子版' ? 'pill-ok' : (m.proofStatus === '待开证明' ? 'pill-amber' : 'pill-crimson');
+  var opp = state.opportunities.filter(function(o){ return o.id === m.linkedOpportunityId; })[0];
+  return '<div class="item">' +
+    '<div class="item-top"><div class="item-name">' + esc(m.title) + '</div>' +
+      '<div class="item-dl"><b class="mono" style="font-size:14px;color:var(--green)">' + f1(num(m.points)) + '</b><span>分</span></div></div>' +
+    '<div class="item-meta">' +
+      '<span class="pill ' + pcls + '">' + esc(m.proofStatus) + '</span>' +
+      '<span class="pill">' + esc(m.kind) + '</span>' +
+      '<span class="pill">' + esc(m.creditCategory) + '</span>' +
+      (m.kind === '志愿' ? '<span class="pill pill-green">' + ic('hour', 'ic-sm') + f1(num(m.hours)) + ' 小时</span>' : '') +
+      '<span class="pill pill-plain">' + esc(m.date || '无日期') + '</span>' +
+      (opp ? '<span class="pill pill-green">关联：' + esc(opp.name) + '</span>' : '') +
+    '</div>' +
+    (m.note ? '<div class="item-note">' + esc(m.note) + '</div>' : '') +
+    '<div class="item-act">' +
+      '<button class="btn btn-sm" data-act="edit-mat" data-id="' + m.id + '">' + ic('edit', 'ic-sm') + '编辑</button>' +
+      '<button class="btn btn-sm" data-act="linkopp" data-id="' + m.id + '">' + ic('link', 'ic-sm') + '关联机会</button>' +
+      (m.proofStatus !== '有电子版' ? '<button class="btn btn-sm btn-p" data-act="fixproof" data-id="' + m.id + '">已补齐</button>' : '') +
+      '<button class="btn btn-sm btn-d" data-act="del-mat" data-id="' + m.id + '">' + ic('trash', 'ic-sm') + '删除</button>' +
+    '</div></div>';
+}
+function viewMaterials(){
+  var vh = volunteerHours(), target = state.settings.volunteerTargetHours;
+  var gap = Math.max(0, target - vh);
+  var pct = target > 0 ? Math.min(100, vh / target * 100) : 100;
+  var groups = KINDS.map(function(k){
+    var arr = state.materials.filter(function(m){ return m.kind === k; });
+    arr.sort(function(a, b){
+      var pa = a.proofStatus === '有电子版' ? 1 : 0, pb = b.proofStatus === '有电子版' ? 1 : 0;
+      if (pa !== pb) return pa - pb;
+      return String(b.date || '').localeCompare(String(a.date || ''));
+    });
+    if (!arr.length) return '';
+    return '<div class="grp-h">' + esc(k) + '<span class="line"></span><span class="n">' + arr.length + ' 份</span></div>' +
+      '<div class="cards">' + arr.map(matRow).join('') + '</div>';
+  }).join('');
+
+  return backupBanner() +
+    '<div class="card"><div class="sec-h">' + ic('hour') + '<h2>志愿时长</h2><span class="sub">目标 ' + f1(target) + ' 小时</span></div>' +
+      '<div style="display:flex;align-items:baseline;gap:8px"><b style="font-size:24px;color:var(--green)" class="mono">' + f1(vh) + '</b>' +
+      '<span class="muted">/ ' + f1(target) + ' 小时</span>' +
+      (gap > 0 ? '<span class="pill pill-amber">还差 ' + f1(gap) + ' 小时</span>' : '<span class="pill pill-ok">已达标</span>') + '</div>' +
+      '<div class="bar" style="margin-top:9px"><i class="b-mor" style="width:' + pct + '%"></i></div>' +
+      '<div class="hint" style="margin-top:7px">只统计「类型=志愿」的材料里填写的服务小时数。</div>' +
+    '</div>' +
+    '<div class="card"><div class="sec-h">' + ic('plus') + '<h2>新增材料</h2><span class="sub">先存证，再谈加分</span></div>' +
+      '<div class="form-grid">' +
+        '<div class="field"><label>名称（必填）</label><input class="inp" id="nmTitle" placeholder="例：校级优秀团员证书"></div>' +
+        '<div class="field"><label>类型</label><select class="inp" id="nmKind" data-act="kind-change">' + opts(KINDS, '') + '</select></div>' +
+        '<div class="field"><label>日期</label><input class="inp" type="date" id="nmDate" value="' + ymd(new Date()) + '"></div>' +
+        '<div class="field"><label>服务小时（仅志愿）</label><input class="inp" type="number" step="0.5" id="nmHours" placeholder="志愿类填写"></div>' +
+        '<div class="field"><label>证明状态</label><select class="inp" id="nmProof">' + opts(PROOFS, '') + '</select></div>' +
+        '<div class="field"><label>加分类别</label><select class="inp" id="nmCat">' + opts(CATS, '') + '</select></div>' +
+        '<div class="field"><label>已认定分数（数字）</label><input class="inp" type="number" step="0.5" id="nmPts" value="0"></div>' +
+        '<div class="field"><label>关联机会</label><select class="inp" id="nmOpp"><option value="">暂不关联</option>' +
+          state.opportunities.map(function(o){ return '<option value="' + o.id + '">' + esc(o.name) + '</option>'; }).join('') + '</select></div>' +
+        '<div class="field span2"><label>备注</label><input class="inp" id="nmNote" placeholder="存放位置、开具单位、待办事项"></div>' +
+      '</div>' +
+      '<div class="btn-row" style="margin-top:10px"><button class="btn btn-p" data-act="add-mat">' + ic('plus', 'ic-sm') + '存入材料仓</button></div>' +
+      '<div class="form-err" id="nmErr"></div>' +
+    '</div>' +
+    '<div class="card"><div class="sec-h">' + ic('materials') + '<h2>材料仓</h2><span class="sub">共 ' + state.materials.length + ' 份 · 缺证明的已置顶</span></div>' +
+      (state.materials.length ? groups : '<div class="empty">材料仓还是空的。把抽屉里的证书、职务证明、志愿时长单先录进来。</div>') +
+    '</div>' + footerHtml();
+}
+
+/* ============================================================
+   7. 视图：综测算分
+   ============================================================ */
+function ring(pct, size){
+  var r = size / 2 - 11, c = 2 * Math.PI * r, off = c * (1 - Math.max(0, Math.min(1, pct)));
+  return '<div class="ring-wrap"><svg width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+    '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" fill="none" stroke="#EDE7DA" stroke-width="12"/>' +
+    '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" fill="none" stroke="#1F4B3C" stroke-width="12" stroke-linecap="round" ' +
+    'stroke-dasharray="' + c.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '" transform="rotate(-90 ' + size / 2 + ' ' + size / 2 + ')"/>' +
+    '</svg><div class="ring-txt"><b class="mono">' + f1(pct * 100) + '</b><span>占满分比例</span></div></div>';
+}
+function bar(label, val, cap, cls, extra){
+  var pct = cap > 0 ? Math.min(100, val / cap * 100) : 0;
+  return '<div class="bar-row"><div class="bar-h"><span>' + esc(label) + '</span>' +
+    '<span class="v">' + f1(val) + ' / ' + f1(cap) + (extra ? '　' + extra : '') + '</span></div>' +
+    '<div class="bar"><i class="' + cls + '" style="width:' + pct + '%"></i></div></div>';
+}
+function viewScore(){
+  var b = scoreBreakdown(), s = state.settings;
+  var pct = b.maxTotal > 0 ? b.total / b.maxTotal : 0;
+  var bonusGap = Math.max(0, num(s.bonusCap) - b.bonus);
+  var vh = volunteerHours(), vGap = Math.max(0, num(s.volunteerTargetHours) - vh);
+
+  var hyp = state.opportunities.filter(function(o){ return o.status === '关注' || o.status === '已报名'; })
+    .map(function(o){ return { o:o, g:gainOf(o) }; })
+    .sort(function(a, b){ return b.g - a.g; });
+  var hypHtml = hyp.length ? '<ul class="hyp">' + hyp.map(function(h){
+    return '<li><span class="pill">' + esc(h.o.creditCategory) + '</span><span>' + esc(h.o.name) + '</span>' +
+      (h.g > 0 ? '<span class="g">+' + f1(h.g) + ' 分</span>'
+               : '<span class="g muted" style="font-weight:400">' + (h.o.creditCategory === '智育' ? '智育按 GPA 计' : '已封顶 +0') + '</span>') +
+      '</li>';
+  }).join('') + '</ul>' : '<div class="empty">没有「关注」或「已报名」的机会，先在雷达里收一条再做假设。</div>';
+
+  return backupBanner() +
+    '<div class="card"><div class="sec-h">' + ic('score') + '<h2>综测估算</h2><span class="sub">个人估算规则，非学校官方成绩</span></div>' +
+      '<div class="score-hero">' + ring(pct, 150) +
+        '<div class="bars">' +
+          bar('德育', b.moral, num(s.moralWeight), 'b-mor', '（已录 ' + f1(b.moralRaw) + ' 分）') +
+          bar('智育', b.academic, num(s.academicWeight), 'b-aca', '（GPA ' + f1(s.gpa) + '/5 折算）') +
+          bar('体育', b.sport, num(s.sportWeight), 'b-spo', '（已录 ' + f1(b.sportRaw) + ' 分）') +
+          bar('附加', b.bonus, num(s.bonusCap), 'b-bon', '（已录 ' + f1(b.bonusRaw) + ' 分）') +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-top:14px;display:flex;gap:10px;align-items:baseline;flex-wrap:wrap">' +
+        '<b style="font-size:28px;color:var(--green)" class="mono">' + f1(b.total) + '</b>' +
+        '<span class="muted">/ ' + f1(b.maxTotal) + ' 分（按当前自设规则）</span></div>' +
+    '</div>' +
+    '<div class="card"><div class="kv">' +
+      '<div class="box"><b>' + f1(bonusGap) + ' 分</b><span>距离附加分上限还差</span></div>' +
+      '<div class="box"><b>' + f1(vGap) + ' 小时</b><span>志愿时长还差</span></div>' +
+      '<div class="box"><b>' + f1(Math.max(0, num(s.moralWeight) - b.moral)) + ' 分</b><span>德育距封顶</span></div>' +
+      '<div class="box"><b>' + f1(Math.max(0, num(s.sportWeight) - b.sport)) + ' 分</b><span>体育距封顶</span></div>' +
+    '</div>' +
+    '<div class="hint" style="margin-top:11px">封顶规则：德育不超过 ' + f1(s.moralWeight) + ' 分，体育不超过 ' + f1(s.sportWeight) +
+      ' 分，附加不超过 ' + f1(s.bonusCap) + ' 分；智育 = GPA ÷ 5 × ' + f1(s.academicWeight) + '。超额部分不计入总分。</div>' +
+    '</div>' +
+    '<div class="card"><div class="sec-h">' + ic('flag') + '<h2>如果再完成一条，总分大约变多少</h2><span class="sub">只对「关注 / 已报名」的机会做估算</span></div>' +
+      hypHtml +
+      '<div class="hint" style="margin-top:9px">估算方式：把该机会的预估加分并入对应类别，再按封顶规则重算差额。这是推算，不是学校认定结果。</div>' +
+    '</div>' +
+    '<div class="card"><div class="sec-h">' + ic('alert') + '<h2>说明</h2></div>' +
+      '<div class="hint">以上为可编辑的个人估算规则，用于自己排优先级，不是学校官方成绩，禁止把估算结果写成「官方综测分」。规则权重可在「我的」中修改，改完立即重算。</div>' +
+    '</div>' + footerHtml();
+}
+
+/* ============================================================
+   8. 视图：文书工坊
+   ============================================================ */
+function matLine(m){
+  return m.title + '（' + (m.date || '无日期') + '，' + m.creditCategory + ' ' + f1(num(m.points)) + ' 分，' + m.proofStatus + '）';
+}
+function genScholarship(){
+  var b = scoreBreakdown(), s = state.settings;
+  var vh = volunteerHours();
+  var L = [];
+  L.push('奖学金申请陈述（草稿）');
+  L.push('');
+  L.push('一、个人基本情况');
+  L.push('本人为 ____ 专业 ____ 年级本科生（姓名、学号请手动补全）。本学年录入 GPA ' + f1(s.gpa) + ' / 5.00，按自设规则估算综测 ' + f1(b.total) + ' 分（满分 ' + f1(b.maxTotal) + '）。');
+  L.push('');
+  L.push('二、学业表现');
+  var aca = state.materials.filter(function(m){ return m.creditCategory === '智育' || m.kind === '成果'; });
+  if (aca.length) aca.forEach(function(m){ L.push('- ' + matLine(m)); });
+  else L.push('- 待补：尚未录入成绩单或学业类成果材料。');
+  L.push('- 智育得分按 GPA 折算：' + f1(s.gpa) + ' ÷ 5 × ' + f1(s.academicWeight) + ' = ' + f1(b.academic) + ' 分。');
+  L.push('');
+  L.push('三、社会工作与志愿服务');
+  var soc = state.materials.filter(function(m){ return m.kind === '职务' || m.kind === '志愿'; });
+  if (soc.length) soc.forEach(function(m){
+    var mid = m.kind === '志愿' ? '（服务 ' + f1(num(m.hours)) + ' 小时，' : '（';
+    L.push('- ' + m.title + mid + m.creditCategory + ' ' + f1(num(m.points)) + ' 分，' + m.proofStatus + '）');
+  });
+  else L.push('- 待补：尚未录入职务或志愿类材料。');
+  L.push('- 累计志愿服务 ' + f1(vh) + ' 小时，目标 ' + f1(s.volunteerTargetHours) + ' 小时' + (vh < s.volunteerTargetHours ? '，尚缺 ' + f1(s.volunteerTargetHours - vh) + ' 小时。' : '，已达标。'));
+  L.push('');
+  L.push('四、竞赛与附加成果');
+  var bon = state.materials.filter(function(m){ return m.creditCategory === '附加' || m.kind === '证书'; });
+  if (bon.length) bon.forEach(function(m){ L.push('- ' + matLine(m)); });
+  else L.push('- 待补：尚未录入竞赛获奖或附加分成果。');
+  var running = state.opportunities.filter(function(o){ return o.type === '竞赛' && (o.status === '关注' || o.status === '已报名' || o.status === '进行中'); });
+  if (running.length) L.push('- 进行中的竞赛：' + running.map(function(o){ return o.name + '（截止 ' + o.deadline + '）'; }).join('；') + '，尚未产生成果，暂不计分。');
+  L.push('- 附加分合计 ' + f1(b.bonus) + ' 分，上限 ' + f1(s.bonusCap) + ' 分。');
+  L.push('');
+  L.push('五、下一步计划');
+  var plan = openOpps().slice().sort(function(a, b){ return dnum(a) - dnum(b); }).slice(0, 6);
+  if (plan.length) plan.forEach(function(o){
+    L.push('- ' + o.name + '：截止 ' + o.deadline + '，当前状态「' + o.status + '」' + (o.creditCategory === '智育' ? '' : '，预计可计入' + o.creditCategory + ' ' + f1(num(o.estimatedPoints)) + ' 分'));
+  });
+  else L.push('- 待补：暂无在办机会。');
+  L.push('');
+  L.push('本草稿由加分参谋部根据已录入材料生成，提交前必须人工核对事实。');
+  return L.join('\n');
+}
+function genSelfEval(){
+  var b = scoreBreakdown(), s = state.settings, vh = volunteerHours();
+  var L = [];
+  L.push('综测自评（草稿）');
+  L.push('');
+  L.push('说明：以下内容依据个人录入材料与自设规则生成，非学校官方综测结果。');
+  L.push('');
+  var cats = [
+    { k:'德育', val:b.moral, raw:b.moralRaw, cap:num(s.moralWeight) },
+    { k:'智育', val:b.academic, raw:null, cap:num(s.academicWeight) },
+    { k:'体育', val:b.sport, raw:b.sportRaw, cap:num(s.sportWeight) },
+    { k:'附加', val:b.bonus, raw:b.bonusRaw, cap:num(s.bonusCap) }
+  ];
+  cats.forEach(function(c){
+    L.push('【' + c.k + '】得分 ' + f1(c.val) + ' / 上限 ' + f1(c.cap));
+    if (c.k === '智育'){
+      L.push('- 折算方式：GPA ' + f1(s.gpa) + ' ÷ 5 × ' + f1(s.academicWeight) + ' = ' + f1(b.academic) + ' 分');
+      var am = state.materials.filter(function(m){ return m.creditCategory === '智育'; });
+      if (am.length) am.forEach(function(m){ L.push('- 佐证材料：' + matLine(m)); });
+      else L.push('- 待补：尚未录入成绩单等智育佐证材料。');
+    } else {
+      var arr = state.materials.filter(function(m){ return m.creditCategory === c.k; });
+      if (arr.length){
+        arr.forEach(function(m){ L.push('- ' + matLine(m)); });
+        L.push('- 录入合计 ' + f1(c.raw) + ' 分，计入 ' + f1(c.val) + ' 分' + (c.raw > c.cap ? '（超出上限部分不计入）' : '，距上限还差 ' + f1(Math.max(0, c.cap - c.val)) + ' 分'));
+      } else {
+        L.push('- 待补：本学年暂无已录入的' + c.k + '类材料。');
+      }
+    }
+    L.push('');
+  });
+  L.push('【志愿服务】累计 ' + f1(vh) + ' 小时 / 目标 ' + f1(s.volunteerTargetHours) + ' 小时');
+  var vs = state.materials.filter(function(m){ return m.kind === '志愿'; });
+  if (vs.length) vs.forEach(function(m){ L.push('- ' + m.title + '：' + f1(num(m.hours)) + ' 小时（' + m.proofStatus + '）'); });
+  else L.push('- 待补：尚无志愿时长记录。');
+  L.push('');
+  L.push('【待补事项】');
+  var bad = state.materials.filter(function(m){ return m.proofStatus !== '有电子版'; });
+  if (bad.length) bad.forEach(function(m){ L.push('- ' + m.title + '：' + m.proofStatus); });
+  var overdue = state.opportunities.filter(function(o){ return isOpen(o) && dnum(o) < 0; });
+  if (overdue.length) overdue.forEach(function(o){ L.push('- ' + o.name + '：已过截止日（' + o.deadline + '）仍未收尾'); });
+  if (!bad.length && !overdue.length) L.push('- 暂无。');
+  L.push('');
+  L.push('本草稿由加分参谋部根据已录入材料生成，提交前必须人工核对事实。');
+  return L.join('\n');
+}
+function genActivity(){
+  var L = [];
+  L.push('活动总结（草稿）');
+  L.push('');
+  var arr = state.materials.filter(function(m){ return m.kind === '活动'; })
+    .slice().sort(function(a, b){ return String(b.date || '').localeCompare(String(a.date || '')); });
+  if (arr.length){
+    arr.forEach(function(m, i){
+      L.push((i + 1) + '. ' + (m.date || '无日期') + '　' + m.title);
+      L.push('   类别：' + m.creditCategory + '　认定分数：' + f1(num(m.points)) + ' 分　材料状态：' + m.proofStatus);
+      if (m.note) L.push('   备注：' + m.note);
+      if (m.linkedOpportunityId){
+        var o = state.opportunities.filter(function(x){ return x.id === m.linkedOpportunityId; })[0];
+        if (o) L.push('   关联机会：' + o.name + '（' + o.status + '，截止 ' + o.deadline + '）');
+      }
+    });
+    L.push('');
+    L.push('活动类材料合计 ' + arr.length + ' 份，录入分数合计 ' +
+      f1(arr.reduce(function(a, m){ return a + num(m.points); }, 0)) + ' 分。');
+  } else {
+    L.push('待补：材料仓中暂无「活动」类材料。');
+  }
+  L.push('');
+  L.push('本草稿由加分参谋部根据已录入材料生成，提交前必须人工核对事实。');
+  return L.join('\n');
+}
+function genDoc(){
+  if (docType === 'self') return genSelfEval();
+  if (docType === 'activity') return genActivity();
+  return genScholarship();
+}
+function viewDocs(){
+  var text = genDoc();
+  curDocText = text;
+  var seg = [['scholarship','奖学金申请陈述'],['self','综测自评'],['activity','活动总结']].map(function(x){
+    return '<button data-act="doc" data-type="' + x[0] + '"' + (docType === x[0] ? ' class="on"' : '') + '>' + x[1] + '</button>';
+  }).join('');
+  return backupBanner() +
+    '<div class="card"><div class="sec-h">' + ic('docs') + '<h2>文书工坊</h2><span class="sub">只用已录入的真实字段，不编造</span></div>' +
+      '<div class="seg">' + seg + '</div>' +
+      '<div class="btn-row" style="margin-top:12px">' +
+        '<button class="btn btn-p btn-sm" data-act="copy-doc">' + ic('copy', 'ic-sm') + '复制全文</button>' +
+        '<button class="btn btn-sm" data-act="regen-doc">重新生成</button>' +
+      '</div>' +
+      '<div class="docout" id="docOut" style="margin-top:12px">' + esc(text) + '</div>' +
+      '<div class="hint" style="margin-top:9px">姓名、学号、专业、年级等未录入的信息以占位形式保留，请手动补全。生成内容只来自材料仓与机会雷达中的现有记录。</div>' +
+    '</div>' + footerHtml();
+}
+var curDocText = '';
+
+/* ============================================================
+   9. 视图：我的
+   ============================================================ */
+function viewMe(){
+  var s = state.settings;
+  return backupBanner() +
+    '<div class="card"><div class="sec-h">' + ic('score') + '<h2>综测规则</h2><span class="sub">改完立即重算</span></div>' +
+      '<div class="form-grid">' +
+        '<div class="field"><label>德育权重</label><input class="inp" type="number" step="1" data-act="set" data-set="moralWeight" value="' + f1(s.moralWeight) + '"></div>' +
+        '<div class="field"><label>智育权重</label><input class="inp" type="number" step="1" data-act="set" data-set="academicWeight" value="' + f1(s.academicWeight) + '"></div>' +
+        '<div class="field"><label>体育权重</label><input class="inp" type="number" step="1" data-act="set" data-set="sportWeight" value="' + f1(s.sportWeight) + '"></div>' +
+        '<div class="field"><label>附加分上限</label><input class="inp" type="number" step="0.5" data-act="set" data-set="bonusCap" value="' + f1(s.bonusCap) + '"></div>' +
+        '<div class="field"><label>志愿目标小时</label><input class="inp" type="number" step="1" data-act="set" data-set="volunteerTargetHours" value="' + f1(s.volunteerTargetHours) + '"></div>' +
+        '<div class="field"><label>当前 GPA（满分 5）</label><input class="inp" type="number" step="0.01" data-act="set" data-set="gpa" value="' + f1(s.gpa) + '"></div>' +
+      '</div>' +
+      '<div class="hint" style="margin-top:10px">智育分 = GPA ÷ 5 × 智育权重。这是一份可编辑的个人估算规则，不是学校官方成绩，禁止把估算结果写成「官方综测分」。</div>' +
+    '</div>' +
+    '<div class="card"><div class="sec-h">' + ic('materials') + '<h2>数据管理</h2><span class="sub">机会 ' + state.opportunities.length + ' 条 · 材料 ' + state.materials.length + ' 份</span></div>' +
+      '<div class="list-row"><div><div class="lr-t">导出 JSON 备份</div><div class="lr-s">包含全部机会、材料与规则，可换机恢复</div></div>' +
+        '<div class="lr-a"><button class="btn btn-sm btn-p" data-act="export">' + ic('down', 'ic-sm') + '导出</button></div></div>' +
+      '<div class="list-row"><div><div class="lr-t">导入 JSON</div><div class="lr-s">覆盖当前全部数据，导入前会二次确认</div></div>' +
+        '<div class="lr-a"><button class="btn btn-sm" data-act="import">' + ic('up', 'ic-sm') + '选择文件</button></div></div>' +
+      '<div class="list-row"><div><div class="lr-t">清空示例数据</div><div class="lr-s">只删除首次打开时自带的演示条目，保留你自己录入的内容</div></div>' +
+        '<div class="lr-a"><button class="btn btn-sm" data-act="clear-demo">清空示例</button></div></div>' +
+      '<div class="list-row"><div><div class="lr-t" style="color:var(--crimson)">清空全部数据</div><div class="lr-s">需要手动输入「清空」两个字才会执行，不可撤销</div></div>' +
+        '<div class="lr-a"><input class="inp" id="wipeInput" placeholder="输入：清空" style="width:110px;height:30px">' +
+        '<button class="btn btn-sm btn-d" data-act="wipe">确认清空</button></div></div>' +
+    '</div>' +
+    '<div class="card"><div class="sec-h">' + ic('me') + '<h2>添加到手机主屏幕</h2></div>' +
+      '<ol class="steps">' +
+        '<li>用手机浏览器（Safari 或 Chrome）打开这个 HTML 文件，或把它放进手机文件夹后用浏览器打开。</li>' +
+        '<li>点底部/右上角的「分享」或「⋮」菜单，选择「添加到主屏幕」。</li>' +
+        '<li>确认名称后添加。之后从桌面图标进入，数据仍存在本机浏览器里，断网可用。</li>' +
+      '</ol>' +
+      '<div class="hint">注意：清理浏览器数据、更换浏览器或使用无痕模式都会导致本地数据丢失，请定期导出 JSON 备份。</div>' +
+    '</div>' +
+    '<div class="card"><div class="sec-h">' + ic('alert') + '<h2>关于</h2></div>' +
+      '<div class="hint">加分参谋部 · Campus Credit OS：把群聊里刷过去的竞赛、讲座、奖学金、志愿信息，变成能算分、能补缺、能交材料的私人教务系统。单文件运行，不联网，不上传。</div>' +
+    '</div>' + footerHtml();
+}
+
+/* ============================================================
+   10. 渲染与事件
+   ============================================================ */
+function render(toTop){
+  renderNav();
+  var host = document.getElementById('view');
+  var html = '';
+  if (cur === 'today') html = viewToday();
+  else if (cur === 'radar') html = viewRadar();
+  else if (cur === 'materials') html = viewMaterials();
+  else if (cur === 'score') html = viewScore();
+  else if (cur === 'docs') html = viewDocs();
+  else html = viewMe();
+  host.innerHTML = html;
+  if (toTop) window.scrollTo(0, 0);
+}
+
+/* ---------- 弹窗 ---------- */
+var modalOk = null;
+function openModal(title, bodyHtml, okText, onOk, danger){
+  modalOk = onOk || null;
+  document.getElementById('modalHost').innerHTML =
+    '<div class="mask" data-act="mask"><div class="modal" data-stop="1">' +
+      '<div class="modal-h"><h3>' + esc(title) + '</h3><button class="x" data-act="close-modal">' + ic('x') + '</button></div>' +
+      '<div id="modalBody">' + bodyHtml + '</div>' +
+      '<div class="modal-f"><button class="btn" data-act="close-modal">取消</button>' +
+      (okText ? '<button class="btn ' + (danger ? 'btn-d' : 'btn-p') + '" data-act="modal-ok">' + esc(okText) + '</button>' : '') +
+      '</div></div></div>';
+}
+function closeModal(){
+  document.getElementById('modalHost').innerHTML = '';
+  modalOk = null;
+}
+function confirmBox(title, msg, okText, onOk){
+  openModal(title, '<div style="font-size:13.5px;line-height:1.8">' + msg + '</div>', okText, onOk, true);
+}
+
+/* ---------- 机会表单 ---------- */
+function oppFormHtml(o){
+  o = o || {};
+  return '<div class="form-grid">' +
+    '<div class="field"><label>名称（必填）</label><input class="inp" id="foName" value="' + esc(o.name || '') + '"></div>' +
+    '<div class="field"><label>类型</label><select class="inp" id="foType">' + opts(TYPES, o.type || '') + '</select></div>' +
+    '<div class="field"><label>截止日</label><input class="inp" type="date" id="foDl" value="' + esc(o.deadline || shiftToday(7)) + '"></div>' +
+    '<div class="field"><label>加分类别</label><select class="inp" id="foCat">' + opts(CATS, o.creditCategory || '') + '</select></div>' +
+    '<div class="field"><label>预估加分（数字）</label><input class="inp" type="number" step="0.5" id="foPts" value="' + (o.estimatedPoints === undefined ? 1 : o.estimatedPoints) + '"></div>' +
+    '<div class="field"><label>投入</label><select class="inp" id="foEff">' + opts(EFFORTS, o.effort || '') + '</select></div>' +
+    '<div class="field"><label>状态</label><select class="inp" id="foSt">' + opts(STATUSES, o.status || '') + '</select></div>' +
+    '<div class="field span2"><label>备注</label><textarea class="inp" rows="2" id="foNote">' + esc(o.note || '') + '</textarea></div>' +
+    '</div><div class="form-err" id="foErr"></div>';
+}
+function readOppForm(p){
+  var g = function(id){ return (document.getElementById(p + id) || {}).value; };
+  var name = (g('Name') || '').trim();
+  var dl = g('Dl');
+  var pts = g('Pts');
+  var err = '';
+  if (!name) err = '名称不能为空。';
+  else if (!validDate(dl)) err = '截止日不合法，请填 YYYY-MM-DD。';
+  else if (pts !== '' && !isFinite(parseFloat(pts))) err = '预估加分必须是数字。';
+  return { name:name, type:g('Type'), deadline:dl, creditCategory:g('Cat'),
+    estimatedPoints: pts === '' ? 0 : num(pts), effort:g('Eff'), status:g('St'),
+    note:(g('Note') || '').trim(), err:err };
+}
+/* ---------- 材料表单 ---------- */
+function matFormHtml(m){
+  m = m || {};
+  var isVol = m.kind === '志愿';
+  return '<div class="form-grid">' +
+    '<div class="field"><label>名称（必填）</label><input class="inp" id="fmTitle" value="' + esc(m.title || '') + '"></div>' +
+    '<div class="field"><label>类型</label><select class="inp" id="fmKind" data-act="mkind-change">' + opts(KINDS, m.kind || '') + '</select></div>' +
+    '<div class="field"><label>日期</label><input class="inp" type="date" id="fmDate" value="' + esc(m.date || ymd(new Date())) + '"></div>' +
+    '<div class="field"><label>服务小时（仅志愿）</label><input class="inp" type="number" step="0.5" id="fmHours" ' + (isVol ? '' : 'disabled') + ' value="' + (m.hours === undefined || m.hours === '' ? '' : m.hours) + '"></div>' +
+    '<div class="field"><label>证明状态</label><select class="inp" id="fmProof">' + opts(PROOFS, m.proofStatus || '') + '</select></div>' +
+    '<div class="field"><label>加分类别</label><select class="inp" id="fmCat">' + opts(CATS, m.creditCategory || '') + '</select></div>' +
+    '<div class="field"><label>已认定分数（数字）</label><input class="inp" type="number" step="0.5" id="fmPts" value="' + (m.points === undefined ? 0 : m.points) + '"></div>' +
+    '<div class="field"><label>关联机会</label><select class="inp" id="fmOpp"><option value="">暂不关联</option>' +
+      state.opportunities.map(function(o){ return '<option value="' + o.id + '"' + (o.id === m.linkedOpportunityId ? ' selected' : '') + '>' + esc(o.name) + '</option>'; }).join('') +
+      '</select></div>' +
+    '<div class="field span2"><label>备注</label><textarea class="inp" rows="2" id="fmNote">' + esc(m.note || '') + '</textarea></div>' +
+    '</div><div class="form-err" id="fmErr"></div>';
+}
+function readMatForm(p){
+  var g = function(id){ return (document.getElementById(p + id) || {}).value; };
+  var title = (g('Title') || '').trim();
+  var date = g('Date'), pts = g('Pts'), hours = g('Hours'), kind = g('Kind');
+  var err = '';
+  if (!title) err = '名称不能为空。';
+  else if (date && !validDate(date)) err = '日期不合法，请填 YYYY-MM-DD。';
+  else if (pts !== '' && !isFinite(parseFloat(pts))) err = '分数必须是数字。';
+  else if (kind === '志愿' && hours !== '' && !isFinite(parseFloat(hours))) err = '服务小时必须是数字。';
+  return { title:title, kind:kind, date:date, hours: kind === '志愿' ? (hours === '' ? '' : num(hours)) : '',
+    proofStatus:g('Proof'), creditCategory:g('Cat'), points: pts === '' ? 0 : num(pts),
+    linkedOpportunityId: g('Opp') || null, note:(g('Note') || '').trim(), err:err };
+}
+/* ---------- 关联材料 ---------- */
+function linkMatHtml(oppId){
+  var o = state.opportunities.filter(function(x){ return x.id === oppId; })[0];
+  if (!o) return '';
+  if (!state.materials.length) return '<div class="empty">材料仓还是空的，先去存一份材料再来关联。</div>';
+  return '<div class="hint" style="margin-bottom:9px">勾选与「' + esc(o.name) + '」相关的材料，关联后缺件会自动出现在今日要事里。</div>' +
+    '<div class="linklist">' + state.materials.map(function(m){
+      var on = (o.linkedMaterialIds || []).indexOf(m.id) >= 0;
+      return '<label><input type="checkbox" value="' + m.id + '"' + (on ? ' checked' : '') + '>' +
+        '<span><div>' + esc(m.title) + '</div><div class="ll-s">' + esc(m.kind) + ' · ' + esc(m.proofStatus) + ' · ' + esc(m.creditCategory) + ' ' + f1(num(m.points)) + ' 分</div></span></label>';
+    }).join('') + '</div>';
+}
+
+/* ---------- 导入导出 ---------- */
+function doExport(){
+  var data = JSON.stringify(state, null, 2);
+  var blob = new Blob([data], { type:'application/json' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url; a.download = '加分参谋部-备份-' + ymd(new Date()) + '.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 1500);
+  toast('已导出 JSON 备份');
+}
+function doImport(file){
+  var r = new FileReader();
+  r.onload = function(){
+    var d;
+    try { d = JSON.parse(String(r.result)); } catch (e){ toast('文件不是合法 JSON'); return; }
+    if (!d || !Array.isArray(d.opportunities) || !Array.isArray(d.materials)){ toast('文件结构不符合备份格式'); return; }
+    confirmBox('确认导入', '将覆盖当前全部数据（机会 ' + state.opportunities.length + ' 条、材料 ' + state.materials.length +
+      ' 份），替换为文件中的 ' + d.opportunities.length + ' 条机会、' + d.materials.length + ' 份材料。此操作不可撤销。', '确认覆盖导入', function(){
+      state = { meta: d.meta || { demoLoaded:false, bannerDismissed:false },
+        opportunities: d.opportunities, materials: d.materials, settings: mergeSettings(d.settings) };
+      state.opportunities.forEach(function(o){ if (!Array.isArray(o.linkedMaterialIds)) o.linkedMaterialIds = []; });
+      save(); closeModal(); render(); toast('导入完成');
+    });
+  };
+  r.readAsText(file);
+}
+function copyText(t){
+  if (navigator.clipboard && window.isSecureContext){
+    navigator.clipboard.writeText(t).then(function(){ toast('已复制全文'); }, function(){ fallbackCopy(t); });
+  } else fallbackCopy(t);
+}
+function fallbackCopy(t){
+  var ta = document.createElement('textarea');
+  ta.value = t; ta.style.position = 'fixed'; ta.style.top = '0'; ta.style.opacity = '0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); toast('已复制全文'); }
+  catch (e){ toast('复制失败，请长按选中文本手动复制'); }
+  document.body.removeChild(ta);
+}
+
+/* ---------- 事件委托 ---------- */
+document.addEventListener('click', function(e){
+  var t = e.target.closest ? e.target.closest('[data-act]') : null;
+  if (!t) return;
+  var act = t.getAttribute('data-act');
+  var id = t.getAttribute('data-id');
+
+  if (act === 'goto'){ cur = t.getAttribute('data-view'); closeModal(); render(true); return; }
+  if (act === 'close-modal'){ closeModal(); return; }
+  if (act === 'mask'){ if (e.target === t) closeModal(); return; }
+  if (act === 'modal-ok'){ if (modalOk) modalOk(); else closeModal(); return; }
+
+  if (act === 'dismiss-banner'){ state.meta.bannerDismissed = true; save(); render(); return; }
+  if (act === 'export'){ doExport(); return; }
+  if (act === 'import'){ document.getElementById('importFile').click(); return; }
+
+  if (act === 'quick-opp'){
+    var qn = document.getElementById('qoName'), qd = document.getElementById('qoDl'), qp = document.getElementById('qoPts');
+    var name = (qn.value || '').trim();
+    if (!name){ toast('先填机会名称'); qn.focus(); return; }
+    if (!validDate(qd.value)){ toast('截止日不合法'); return; }
+    if (qp.value !== '' && !isFinite(parseFloat(qp.value))){ toast('预估加分必须是数字'); return; }
+    state.opportunities.push({ id:uid(), name:name, type:document.getElementById('qoType').value,
+      deadline:qd.value, creditCategory:'德育', estimatedPoints: qp.value === '' ? 0 : num(qp.value),
+      effort:'中', status:'关注', note:'', linkedMaterialIds:[], demo:false });
+    save(); render(); toast('已加入机会雷达，可去雷达补全分类与投入');
+    return;
+  }
+  if (act === 'quick-mat'){
+    var mt = document.getElementById('qmTitle'), md = document.getElementById('qmDate');
+    var title = (mt.value || '').trim();
+    if (!title){ toast('先填材料名称'); mt.focus(); return; }
+    if (md.value && !validDate(md.value)){ toast('日期不合法'); return; }
+    var mk = document.getElementById('qmKind').value;
+    state.materials.push({ id:uid(), title:title, kind:mk, date:md.value,
+      hours: mk === '志愿' ? 0 : '', proofStatus:document.getElementById('qmProof').value,
+      creditCategory:'德育', points:0, linkedOpportunityId:null, note:'', demo:false });
+    save(); render(); toast('已存入材料仓');
+    return;
+  }
+
+  if (act === 'add-opp'){
+    var v = readOppForm('no');
+    if (v.err){ document.getElementById('noErr').textContent = v.err; return; }
+    state.opportunities.push({ id:uid(), name:v.name, type:v.type, deadline:v.deadline, creditCategory:v.creditCategory,
+      estimatedPoints:v.estimatedPoints, effort:v.effort, status:v.status, note:v.note, linkedMaterialIds:[], demo:false });
+    save(); render(); toast('已加入机会雷达');
+    return;
+  }
+  if (act === 'add-mat'){
+    var mv = readMatForm('nm');
+    if (mv.err){ document.getElementById('nmErr').textContent = mv.err; return; }
+    var mobj = { id:uid(), title:mv.title, kind:mv.kind, date:mv.date, hours:mv.hours, proofStatus:mv.proofStatus,
+      creditCategory:mv.creditCategory, points:mv.points, linkedOpportunityId:mv.linkedOpportunityId, note:mv.note, demo:false };
+    if (mv.linkedOpportunityId){
+      var lo = state.opportunities.filter(function(o){ return o.id === mv.linkedOpportunityId; })[0];
+      if (lo && (lo.linkedMaterialIds || []).indexOf(mobj.id) < 0){ lo.linkedMaterialIds.push(mobj.id); }
+    }
+    state.materials.push(mobj);
+    save(); render(); toast('已存入材料仓');
+    return;
+  }
+  if (act === 'edit-opp'){
+    var o2 = state.opportunities.filter(function(x){ return x.id === id; })[0];
+    if (!o2) return;
+    openModal('编辑机会', oppFormHtml(o2), '保存', function(){
+      var v2 = readOppForm('fo');
+      if (v2.err){ document.getElementById('foErr').textContent = v2.err; return; }
+      o2.name = v2.name; o2.type = v2.type; o2.deadline = v2.deadline; o2.creditCategory = v2.creditCategory;
+      o2.estimatedPoints = v2.estimatedPoints; o2.effort = v2.effort; o2.status = v2.status; o2.note = v2.note;
+      save(); closeModal(); render(); toast('已保存');
+    });
+    return;
+  }
+  if (act === 'edit-mat'){
+    var m2 = state.materials.filter(function(x){ return x.id === id; })[0];
+    if (!m2) return;
+    openModal('编辑材料', matFormHtml(m2), '保存', function(){
+      var v3 = readMatForm('fm');
+      if (v3.err){ document.getElementById('fmErr').textContent = v3.err; return; }
+      var oldOpp = m2.linkedOpportunityId;
+      m2.title = v3.title; m2.kind = v3.kind; m2.date = v3.date; m2.hours = v3.hours;
+      m2.proofStatus = v3.proofStatus; m2.creditCategory = v3.creditCategory; m2.points = v3.points;
+      m2.linkedOpportunityId = v3.linkedOpportunityId; m2.note = v3.note;
+      if (oldOpp && oldOpp !== v3.linkedOpportunityId){
+        var po = state.opportunities.filter(function(o){ return o.id === oldOpp; })[0];
+        if (po) po.linkedMaterialIds = (po.linkedMaterialIds || []).filter(function(x){ return x !== m2.id; });
+      }
+      if (v3.linkedOpportunityId){
+        var no = state.opportunities.filter(function(o){ return o.id === v3.linkedOpportunityId; })[0];
+        if (no && (no.linkedMaterialIds || []).indexOf(m2.id) < 0) no.linkedMaterialIds.push(m2.id);
+      }
+      save(); closeModal(); render(); toast('已保存');
+    });
+    return;
+  }
+  if (act === 'del-opp'){
+    var o3 = state.opportunities.filter(function(x){ return x.id === id; })[0];
+    if (!o3) return;
+    confirmBox('删除机会', '确定删除「' + esc(o3.name) + '」吗？删除后无法恢复。', '确认删除', function(){
+      state.opportunities = state.opportunities.filter(function(x){ return x.id !== id; });
+      state.materials.forEach(function(m){ if (m.linkedOpportunityId === id) m.linkedOpportunityId = null; });
+      save(); closeModal(); render(); toast('已删除');
+    });
+    return;
+  }
+  if (act === 'del-mat'){
+    var m3 = state.materials.filter(function(x){ return x.id === id; })[0];
+    if (!m3) return;
+    confirmBox('删除材料', '确定删除「' + esc(m3.title) + '」吗？删除后无法恢复。', '确认删除', function(){
+      state.materials = state.materials.filter(function(x){ return x.id !== id; });
+      state.opportunities.forEach(function(o){ o.linkedMaterialIds = (o.linkedMaterialIds || []).filter(function(x){ return x !== id; }); });
+      save(); closeModal(); render(); toast('已删除');
+    });
+    return;
+  }
+  if (act === 'linkmat'){
+    var o4 = state.opportunities.filter(function(x){ return x.id === id; })[0];
+    if (!o4) return;
+    openModal('关联材料 · ' + o4.name, linkMatHtml(id), '保存关联', function(){
+      var boxes = document.querySelectorAll('#modalBody .linklist input[type=checkbox]');
+      var picked = [];
+      for (var i = 0; i < boxes.length; i++){ if (boxes[i].checked) picked.push(boxes[i].value); }
+      o4.linkedMaterialIds = picked;
+      state.materials.forEach(function(m){
+        if (picked.indexOf(m.id) >= 0) m.linkedOpportunityId = id;
+        else if (m.linkedOpportunityId === id) m.linkedOpportunityId = null;
+      });
+      save(); closeModal(); render(); toast('关联已更新');
+    });
+    return;
+  }
+  if (act === 'linkopp'){
+    var m4 = state.materials.filter(function(x){ return x.id === id; })[0];
+    if (!m4) return;
+    if (!state.opportunities.length){ toast('机会雷达里还没有机会，先加一条'); return; }
+    var body = '<div class="field"><label>选择要关联的机会</label><select class="inp" id="loSel">' +
+      '<option value="">暂不关联</option>' + state.opportunities.map(function(o){
+        return '<option value="' + o.id + '"' + (o.id === m4.linkedOpportunityId ? ' selected' : '') + '>' + esc(o.name) + '</option>';
+      }).join('') + '</select></div>';
+    openModal('关联机会 · ' + m4.title, body, '保存', function(){
+      var sel = document.getElementById('loSel').value;
+      var old = m4.linkedOpportunityId;
+      if (old && old !== sel){
+        var po2 = state.opportunities.filter(function(o){ return o.id === old; })[0];
+        if (po2) po2.linkedMaterialIds = (po2.linkedMaterialIds || []).filter(function(x){ return x !== m4.id; });
+      }
+      m4.linkedOpportunityId = sel || null;
+      if (sel){
+        var n2 = state.opportunities.filter(function(o){ return o.id === sel; })[0];
+        if (n2 && (n2.linkedMaterialIds || []).indexOf(m4.id) < 0) n2.linkedMaterialIds.push(m4.id);
+      }
+      save(); closeModal(); render(); toast('关联已更新');
+    });
+    return;
+  }
+  if (act === 'fixproof'){
+    var m5 = state.materials.filter(function(x){ return x.id === id; })[0];
+    if (!m5) return;
+    m5.proofStatus = '有电子版';
+    save(); render(); toast('已标记为有电子版');
+    return;
+  }
+  if (act === 'signup' || act === 'submit' || act === 'finish'){
+    var o5 = state.opportunities.filter(function(x){ return x.id === id; })[0];
+    if (!o5) return;
+    o5.status = act === 'signup' ? '已报名' : (act === 'submit' ? '已提交' : '已结束');
+    save(); render(); toast('状态已更新为「' + o5.status + '」');
+    return;
+  }
+  if (act === 'doc'){ docType = t.getAttribute('data-type'); render(); return; }
+  if (act === 'regen-doc'){ render(); toast('已按最新数据重新生成'); return; }
+  if (act === 'copy-doc'){ copyText(genDoc()); return; }
+  if (act === 'clear-demo'){
+    var n = state.opportunities.filter(function(o){ return o.demo; }).length + state.materials.filter(function(m){ return m.demo; }).length;
+    if (!n){ toast('没有示例数据需要清理'); return; }
+    confirmBox('清空示例数据', '将删除 ' + n + ' 条首次打开时的演示条目，你自己录入的内容不受影响。', '确认清空示例', function(){
+      state.opportunities = state.opportunities.filter(function(o){ return !o.demo; });
+      state.materials = state.materials.filter(function(m){ return !m.demo; });
+      state.meta.demoLoaded = false;
+      save(); closeModal(); render(); toast('示例数据已清空');
+    });
+    return;
+  }
+  if (act === 'wipe'){
+    var wi = document.getElementById('wipeInput');
+    if (!wi || wi.value.trim() !== '清空'){ toast('请先在输入框中输入「清空」两个字'); if (wi) wi.focus(); return; }
+    confirmBox('清空全部数据', '将删除全部机会与材料，并重置综测规则为默认值。此操作不可撤销，建议先导出备份。', '我确认清空', function(){
+      var keepMeta = { demoLoaded:false, bannerDismissed:false };
+      state = { meta:keepMeta, opportunities:[], materials:[], settings:defaultSettings() };
+      save(); closeModal(); render(); toast('已清空全部数据');
+    });
+    return;
+  }
+});
+document.addEventListener('change', function(e){
+  var t = e.target;
+  if (!t || !t.getAttribute) return;
+  var act = t.getAttribute('data-act');
+  if (act === 'opp-status'){
+    var o = state.opportunities.filter(function(x){ return x.id === t.getAttribute('data-id'); })[0];
+    if (o){ o.status = t.value; save(); render(); toast('状态已更新为「' + o.status + '」'); }
+    return;
+  }
+  if (act === 'flt'){
+    filters[t.getAttribute('data-key')] = t.value;
+    render();
+    return;
+  }
+  if (act === 'flt14'){ filters.only14 = !!t.checked; render(); return; }
+  if (act === 'kind-change'){
+    var h = document.getElementById('nmHours');
+    if (h){ h.disabled = t.value !== '志愿'; if (t.value !== '志愿') h.value = ''; }
+    return;
+  }
+  if (act === 'mkind-change'){
+    var h2 = document.getElementById('fmHours');
+    if (h2){ h2.disabled = t.value !== '志愿'; if (t.value !== '志愿') h2.value = ''; }
+    return;
+  }
+  if (act === 'set'){
+    var key = t.getAttribute('data-set');
+    var v = parseFloat(t.value);
+    state.settings[key] = isFinite(v) ? v : 0;
+    state.settings.academicScore = state.settings.gpa / 5 * state.settings.academicWeight;
+    save(); render();
+    return;
+  }
+  if (t.id === 'importFile' && t.files && t.files[0]){ doImport(t.files[0]); t.value = ''; return; }
+});
+document.addEventListener('input', function(e){
+  var t = e.target;
+  if (!t || !t.getAttribute) return;
+  if (t.getAttribute('data-act') === 'set'){
+    var key = t.getAttribute('data-set');
+    var v = parseFloat(t.value);
+    state.settings[key] = isFinite(v) ? v : 0;
+    state.settings.academicScore = state.settings.gpa / 5 * state.settings.academicWeight;
+    save();
+    if (cur === 'score' || cur === 'today' || cur === 'materials') render();
+    return;
+  }
+});
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape') closeModal();
+});
+
+render(true);
+})();
+</script>
+</body>
+</html>
